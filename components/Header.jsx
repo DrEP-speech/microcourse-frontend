@@ -1,65 +1,53 @@
-"use client";
-
+﻿"use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
-const API_BASE = (process.env.NEXT_PUBLIC_API_BASE || "").replace(/\/$/, "");
+const API = process.env.NEXT_PUBLIC_API_BASE;
 
 export default function Header() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
 
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      try {
-        const res = await fetch(`${API_BASE}/auth/me`, { credentials: "include" });
-        if (res.ok) {
-          const data = await res.json();
-          if (alive) setUser(data.user ?? null);
-        } else if (alive) {
-          setUser(null);
-        }
-      } catch {
-        if (alive) setUser(null);
-      } finally {
-        if (alive) setLoading(false);
-      }
-    })();
-    return () => { alive = false; };
-  }, []);
-
-  async function onLogout() {
+  async function refreshMe() {
     try {
-      await fetch(`${API_BASE}/auth/logout`, { method: "POST", credentials: "include" });
+      const res = await fetch(`${API}/auth/me`, { credentials: "include" });
+      const data = await res.json();
+      setUser(data?.success ? data.user : null);
+    } catch {
+      setUser(null);
     } finally {
-      router.refresh();
-      router.push("/");
+      setLoading(false);
     }
   }
 
+  useEffect(() => { refreshMe(); }, []);
+
+  async function onLogout() {
+    try {
+      await fetch(`${API}/auth/logout`, { method: "POST", credentials: "include" });
+      setUser(null);
+    } catch {}
+  }
+
   return (
-    <header className="w-full border-b bg-white">
-      <div className="mx-auto max-w-5xl px-4 h-14 flex items-center justify-between">
-        <Link href="/" className="font-semibold">MicroCourse</Link>
-        <nav className="flex items-center gap-4 text-sm">
-          {loading ? (
-            <span>…</span>
-          ) : user ? (
-            <>
-              <span className="opacity-70">{user.name || user.email}</span>
-              <button onClick={onLogout} className="px-3 py-1 rounded border hover:bg-gray-50">Logout</button>
-            </>
-          ) : (
-            <>
-              <Link href="/login" className="underline">Login</Link>
-              <Link href="/signup" className="underline">Sign up</Link>
-            </>
-          )}
-        </nav>
-      </div>
+    <header style={{borderBottom:"1px solid #eee", padding:"12px 16px", display:"flex", gap:12, alignItems:"center"}}>
+      <Link href="/" style={{ fontWeight: 700 }}>MicroCourse LMS</Link>
+      <nav style={{ marginLeft: "auto", display:"flex", gap:12 }}>
+        {loading ? (
+          <span>…</span>
+        ) : user ? (
+          <>
+            <span>Hello, {user.name ?? user.email}</span>
+            <button onClick={onLogout} style={{ padding:"6px 10px", border:"1px solid #ddd", borderRadius:8, cursor:"pointer" }}>
+              Logout
+            </button>
+          </>
+        ) : (
+          <>
+            <Link href="/signup">Sign up</Link>
+          </>
+        )}
+      </nav>
     </header>
   );
 }
