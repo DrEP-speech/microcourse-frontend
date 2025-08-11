@@ -1,8 +1,9 @@
 ﻿export default function Home() {
   return (
     <main style={{ padding: 24 }}>
-      <h1>MicroCourse Frontend</h1>
-      <p>App Router is configured. Try <a href="/debug">/debug</a>.</p>
+      <h1>Welcome to MicroCourse LMS</h1>
+      <p>App Router is active.</p>
+      <p><a href="/debug">Go to /debug</a></p>
     </main>
   );
 }
