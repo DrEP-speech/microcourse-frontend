@@ -1,16 +1,14 @@
-﻿import Header from "../components/Header";
+﻿import "./globals.css";
+import Header from "../components/Header";
 
-export const metadata = {
-  title: "MicroCourse LMS",
-  description: "Learn with micro-courses",
-};
+export const metadata = { title: "MicroCourse LMS" };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body style={{maxWidth:900, margin:"0 auto"}}>
+      <body>
         <Header />
-        <main style={{ padding:"16px" }}>{children}</main>
+        {children}
       </body>
     </html>
   );
