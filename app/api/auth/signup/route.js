@@ -18,7 +18,12 @@ export async function POST(req) {
     if (!upstream.ok) {
       return NextResponse.json({ message: data?.message || "Signup failed", details: data }, { status: upstream.status });
     }
-    return NextResponse.json(data, { status: 201 });
+    const token = data?.token ?? data?.accessToken;
+    const res = NextResponse.json({ user: data?.user ?? null, tokenSet: !!token }, { status: 201 });
+    if (token) {
+      res.cookies.set("mc_token", token, { httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: 60*60*24*7 });
+    }
+    return res;
   } catch (err) {
     return NextResponse.json({ message: "Signup proxy error", error: String(err) }, { status: 500 });
   }
