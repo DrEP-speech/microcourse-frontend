@@ -26,5 +26,14 @@
     "**/*.tsx",
     ".next/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "_ARCHIVED_20260624", "tests", "playwright.config.ts"]
+  "exclude": [
+    "node_modules",
+    "_ARCHIVED_20260624",
+    "tests",
+    "playwright.config.ts",
+    "jest.setup.ts",
+    "jest.config.cjs",
+    "__tests__",
+    "e2e"
+  ]
 }
