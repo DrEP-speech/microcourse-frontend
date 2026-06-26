@@ -4,10 +4,10 @@ export const dynamic = "force-dynamic";
 
 export default function LoginPage() {
   return (
-    <main style={{ padding: 24, maxWidth: 720, margin: "0 auto" }}>
-      <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 10 }}>Login</h1>
-      <p style={{ opacity: 0.8, marginBottom: 16 }}>
-        Your /api/courses route requires a token. Login stores it locally so the app can call protected routes.
+    <main>
+      <h1 className="h1" style={{ textAlign: "center", marginBottom: 6 }}>Welcome back</h1>
+      <p className="muted" style={{ textAlign: "center", marginBottom: 24 }}>
+        Sign in to pick up where you left off.
       </p>
       <LoginClient />
     </main>

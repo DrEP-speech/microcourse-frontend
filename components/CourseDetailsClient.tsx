@@ -116,55 +116,47 @@ export default function CourseDetailsClient({ courseId }: { courseId: string }) 
   const title = course?.title || course?.name || "Course";
 
   return (
-    <section style={{ border: "1px solid #ddd", borderRadius: 12, padding: 16 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center" }}>
-        <Link href="/courses" style={{ textDecoration: "underline" }}>← Back to Courses</Link>
-        <div style={{ fontSize: 12, opacity: 0.75 }}>
+    <section>
+      <div className="spread">
+        <Link href="/courses" className="link">← Back to courses</Link>
+        <div className="muted" style={{ fontSize: 12 }}>
           API: <span style={{ fontFamily: "monospace" }}>{apiBase}</span>
         </div>
       </div>
 
-      <hr style={{ margin: "14px 0" }} />
+      <hr className="hr" />
 
-      {loading && <div>Loading course…</div>}
+      {loading && <div className="muted">Loading course…</div>}
 
       {!loading && err && (
-        <div style={{ color: "crimson" }}>
+        <div className="alert">
           <div style={{ fontWeight: 700 }}>Failed to load course</div>
-          <div style={{ fontFamily: "monospace", whiteSpace: "pre-wrap" }}>{err}</div>
-          <div style={{ marginTop: 10, opacity: 0.85 }}>
-            Confirm backend route <span style={{ fontFamily: "monospace" }}>/api/courses/{courseId}</span> exists.
-          </div>
+          <div style={{ fontFamily: "monospace", whiteSpace: "pre-wrap", fontSize: 13, marginTop: 6 }}>{err}</div>
         </div>
       )}
 
       {!loading && !err && (
-        <>
-          <h1 style={{ fontSize: 26, fontWeight: 800, margin: 0 }}>{title}</h1>
-          <div style={{ fontSize: 12, opacity: 0.7, marginTop: 6 }}>
-            courseId: <span style={{ fontFamily: "monospace" }}>{courseId}</span>
-          </div>
+        <div className="card">
+          <h1 className="h1" style={{ margin: 0 }}>{title}</h1>
 
           {course?.description && (
-            <p style={{ marginTop: 12, opacity: 0.9 }}>{course.description}</p>
+            <p className="muted" style={{ marginTop: 12 }}>{course.description}</p>
           )}
 
-          <h2 style={{ marginTop: 18, fontSize: 18, fontWeight: 700 }}>Lessons</h2>
+          <h2 className="h2" style={{ marginTop: 22 }}>Lessons</h2>
 
           {lessons.length === 0 ? (
-            <div style={{ opacity: 0.75 }}>
-              No lessons published for this course yet.
-            </div>
+            <div className="muted">No lessons published for this course yet.</div>
           ) : (
             <ul style={{ marginTop: 10, listStyle: "none", padding: 0, display: "grid", gap: 8 }}>
               {lessons.map((l) => {
                 const lessonId = l._id || l.id;
                 const quiz = quizForLesson(lessonId);
                 return (
-                  <li key={lessonId || Math.random()} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", border: "1px solid #eee", borderRadius: 8, padding: "8px 12px" }}>
+                  <li key={lessonId || Math.random()} className="spread" style={{ border: "1px solid var(--border)", borderRadius: 10, padding: "10px 14px" }}>
                     <span>{l.title || l.name || "(untitled lesson)"}</span>
                     {quiz && (
-                      <Link href={`/quiz/${quiz._id || quiz.id}`} style={{ textDecoration: "underline", fontSize: 14 }}>
+                      <Link href={`/quiz/${quiz._id || quiz.id}`} className="link" style={{ fontSize: 14 }}>
                         Take Quiz →
                       </Link>
                     )}
@@ -176,11 +168,11 @@ export default function CourseDetailsClient({ courseId }: { courseId: string }) 
 
           {courseLevelQuizzes.length > 0 && (
             <>
-              <h2 style={{ marginTop: 18, fontSize: 18, fontWeight: 700 }}>Course Quiz</h2>
+              <h2 className="h2" style={{ marginTop: 22 }}>Course quiz</h2>
               <ul style={{ marginTop: 10, listStyle: "none", padding: 0, display: "grid", gap: 8 }}>
                 {courseLevelQuizzes.map((q) => (
-                  <li key={q._id || q.id} style={{ border: "1px solid #eee", borderRadius: 8, padding: "8px 12px" }}>
-                    <Link href={`/quiz/${q._id || q.id}`} style={{ textDecoration: "underline" }}>
+                  <li key={q._id || q.id} style={{ border: "1px solid var(--border)", borderRadius: 10, padding: "10px 14px" }}>
+                    <Link href={`/quiz/${q._id || q.id}`} className="link">
                       {q.title || q.name || "Quiz"} →
                     </Link>
                   </li>
@@ -188,7 +180,7 @@ export default function CourseDetailsClient({ courseId }: { courseId: string }) 
               </ul>
             </>
           )}
-        </>
+        </div>
       )}
     </section>
   );

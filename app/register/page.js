@@ -49,81 +49,64 @@ export default function RegisterPage() {
   }
 
   return (
-    <main style={{ padding: 24, maxWidth: 720, margin: "0 auto" }}>
-      <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 10 }}>Create account</h1>
-      <p style={{ opacity: 0.8, marginBottom: 16 }}>
-        Registers via <code>/api/auth/register</code> and stores a JWT locally.
+    <div>
+      <h1 className="h1" style={{ textAlign: "center", marginBottom: 6 }}>Create your account</h1>
+      <p className="muted" style={{ textAlign: "center", marginBottom: 24 }}>
+        Takes less than a minute. We&apos;ll get you straight to your dashboard.
       </p>
 
-      <section style={{ border: "1px solid #ddd", borderRadius: 12, padding: 16 }}>
-        <form onSubmit={onSubmit} style={{ display: "grid", gap: 10 }}>
-          <label style={{ display: "grid", gap: 6 }}>
-            <span>Name</span>
+      <section className="card" style={{ maxWidth: 420, margin: "0 auto" }}>
+        <form onSubmit={onSubmit} className="formRow">
+          <label className="stack">
+            <span className="muted">Name</span>
             <input
+              className="input"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Your name"
-              style={{ padding: 10, borderRadius: 10, border: "1px solid #ccc" }}
             />
           </label>
 
-          <label style={{ display: "grid", gap: 6 }}>
-            <span>Email</span>
+          <label className="stack">
+            <span className="muted">Email</span>
             <input
+              className="input"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              style={{ padding: 10, borderRadius: 10, border: "1px solid #ccc" }}
             />
           </label>
 
-          <label style={{ display: "grid", gap: 6 }}>
-            <span>Password</span>
+          <label className="stack">
+            <span className="muted">Password</span>
             <input
+              className="input"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              style={{ padding: 10, borderRadius: 10, border: "1px solid #ccc" }}
             />
           </label>
 
-          <button
-            type="submit"
-            disabled={busy}
-            style={{
-              padding: 12,
-              borderRadius: 12,
-              border: "1px solid #111",
-              background: busy ? "#eee" : "#111",
-              color: busy ? "#111" : "#fff",
-              fontWeight: 700,
-              cursor: busy ? "not-allowed" : "pointer",
-            }}
-          >
+          <button type="submit" disabled={busy} className="btn primary full">
             {busy ? "Creating account..." : "Create account"}
           </button>
 
           {msg && (
-            <div
-              style={{
-                marginTop: 6,
-                color: msg.toLowerCase().includes("redirect") ? "green" : "crimson",
-              }}
-            >
+            <div className={msg.toLowerCase().includes("redirect") ? "ok" : "alert"}>
               {msg}
             </div>
           )}
         </form>
 
-        <p style={{ marginTop: 14, fontSize: 13, opacity: 0.7 }}>
+        <p className="muted" style={{ marginTop: 16, fontSize: 13 }}>
           Already have an account?{" "}
-          <a href="/login" style={{ color: "inherit" }}>
+          <a href="/login" className="link">
             Sign in
           </a>
         </p>
       </section>
-    </main>
+    </div>
   );
 }

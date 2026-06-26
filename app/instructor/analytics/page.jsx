@@ -6,13 +6,15 @@ export const metadata = {
 
 export default function InstructorAnalyticsPage() {
   return (
-    <main className="p-8">
-      <h1 className="text-2xl font-bold">Instructor Analytics</h1>
-      <p className="mt-4 text-gray-700">
-        Placeholder analytics view. Replace this with charts and KPIs once the
-        data layer is ready.
-      </p>
-    </main>
+    <section>
+      <h1 className="h1">Instructor Analytics</h1>
+      <div className="card" style={{ marginTop: 16 }}>
+        <p className="muted">
+          Placeholder analytics view. Replace this with charts and KPIs once the
+          data layer is ready.
+        </p>
+      </div>
+    </section>
   );
 }
 

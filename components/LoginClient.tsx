@@ -59,58 +59,41 @@ export default function LoginClient() {
   }
 
   return (
-    <section style={{ border: "1px solid #ddd", borderRadius: 12, padding: 16 }}>
-      <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 10 }}>
-        Backend: <span style={{ fontFamily: "monospace" }}>{apiBase}</span>
-      </div>
-
-      <form onSubmit={onSubmit} style={{ display: "grid", gap: 10 }}>
-        <label style={{ display: "grid", gap: 6 }}>
-          <span>Email</span>
+    <section className="card" style={{ maxWidth: 420, margin: "0 auto" }}>
+      <form onSubmit={onSubmit} className="formRow">
+        <label className="stack">
+          <span className="muted">Email</span>
           <input
+            className="input"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
-            style={{ padding: 10, borderRadius: 10, border: "1px solid #ccc" }}
           />
         </label>
 
-        <label style={{ display: "grid", gap: 6 }}>
-          <span>Password</span>
+        <label className="stack">
+          <span className="muted">Password</span>
           <input
+            className="input"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
-            style={{ padding: 10, borderRadius: 10, border: "1px solid #ccc" }}
           />
         </label>
 
-        <button
-          type="submit"
-          disabled={busy}
-          style={{
-            padding: 12,
-            borderRadius: 12,
-            border: "1px solid #111",
-            background: busy ? "#eee" : "#111",
-            color: busy ? "#111" : "#fff",
-            fontWeight: 700,
-            cursor: busy ? "not-allowed" : "pointer",
-          }}
-        >
+        <button type="submit" disabled={busy} className="btn primary full">
           {busy ? "Signing in..." : "Sign in"}
         </button>
 
         {msg && (
-          <div style={{ marginTop: 6, whiteSpace: "pre-wrap", color: msg.toLowerCase().includes("successful") ? "green" : "crimson" }}>
+          <div className={msg.toLowerCase().includes("successful") ? "ok" : "alert"}>
             {msg}
           </div>
         )}
 
-        <div style={{ fontSize: 12, opacity: 0.7, marginTop: 8 }}>
-          If this fails with “route not found”, your backend login route isn’t <span style={{ fontFamily: "monospace" }}>/api/auth/login</span>.
-          We’ll switch it to the correct one.
+        <div className="muted" style={{ fontSize: 12 }}>
+          Backend: <span style={{ fontFamily: "monospace" }}>{apiBase}</span>
         </div>
       </form>
     </section>

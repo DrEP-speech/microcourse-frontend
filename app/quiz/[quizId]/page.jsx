@@ -74,9 +74,9 @@ export default function QuizPage() {
 
   if (!quiz) {
     return (
-      <main style={{ maxWidth: 900, margin: "30px auto", padding: 16, fontFamily: "system-ui" }}>
-        <h1 data-testid="quiz-heading">Quiz</h1>
-        <p data-testid="quiz-loading">{msg || "Loading..."}</p>
+      <main style={{ maxWidth: 720, margin: "0 auto" }}>
+        <h1 className="h1" data-testid="quiz-heading">Quiz</h1>
+        <p className="muted" data-testid="quiz-loading">{msg || "Loading..."}</p>
       </main>
     );
   }
@@ -84,23 +84,24 @@ export default function QuizPage() {
   const questions = quiz.questions || [];
 
   return (
-    <main style={{ maxWidth: 900, margin: "30px auto", padding: 16, fontFamily: "system-ui" }}>
-      <h1 data-testid="quiz-heading">{quiz.title || quiz.name || "Quiz"}</h1>
+    <main style={{ maxWidth: 720, margin: "0 auto" }}>
+      <h1 className="h1" data-testid="quiz-heading">{quiz.title || quiz.name || "Quiz"}</h1>
 
       {result && (
-        <p data-testid="quiz-last-result" style={{ opacity: 0.85, marginBottom: 12 }}>
-          Last saved result: {result.score ?? result.percent}% ({result.correctCount}/{result.total}) —{" "}
-          {result.passed ? "Passed" : "Not passed"}
-        </p>
+        <div style={{ marginTop: 14 }}>
+          <span className={`score-badge ${result.passed ? "pass" : "fail"}`} data-testid="quiz-last-result">
+            {result.score ?? result.percent}% ({result.correctCount}/{result.total}) — {result.passed ? "Passed" : "Not passed"}
+          </span>
+        </div>
       )}
 
-      <div style={{ display: "grid", gap: 14 }}>
+      <div className="stack" style={{ marginTop: 18 }}>
         {questions.map((q, idx) => (
-          <div key={q._id || q.id || idx} data-testid={`quiz-q-${idx}`} style={{ border: "1px solid #333", borderRadius: 12, padding: 12 }}>
-            <div style={{ fontWeight: 700, marginBottom: 8 }}>{q.prompt || q.question || `Question ${idx + 1}`}</div>
-            <div style={{ display: "grid", gap: 6 }}>
+          <div key={q._id || q.id || idx} data-testid={`quiz-q-${idx}`} className="quiz-q">
+            <div style={{ fontWeight: 700, marginBottom: 10 }}>{q.prompt || q.question || `Question ${idx + 1}`}</div>
+            <div className="stack" style={{ gap: 4 }}>
               {(q.choices || q.options || []).map((choice, choiceIdx) => (
-                <label key={choiceIdx} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+                <label key={choiceIdx} className="quiz-choice">
                   <input
                     type="radio"
                     name={`question-${idx}`}
@@ -120,12 +121,13 @@ export default function QuizPage() {
         data-testid="quiz-submit"
         onClick={submit}
         disabled={busy}
-        style={{ marginTop: 16, padding: 12, borderRadius: 12, cursor: busy ? "not-allowed" : "pointer" }}
+        className="btn primary"
+        style={{ marginTop: 18 }}
       >
         {busy ? "Submitting..." : "Submit"}
       </button>
 
-      {msg ? <p data-testid="quiz-msg" style={{ marginTop: 10 }}>{msg}</p> : null}
+      {msg ? <p className="muted" data-testid="quiz-msg" style={{ marginTop: 12 }}>{msg}</p> : null}
     </main>
   );
 }

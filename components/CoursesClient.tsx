@@ -57,68 +57,44 @@ export default function CoursesClient() {
   }, []);
 
   return (
-    <section style={{ border: "1px solid #ddd", borderRadius: 12, padding: 16 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", marginBottom: 12 }}>
-        <div style={{ fontWeight: 600 }}>API_BASE: <span style={{ fontFamily: "monospace" }}>{apiBase}</span></div>
-        <a
-          href={`${apiBase}/health`}
-          target="_blank"
-          rel="noreferrer"
-          style={{ fontSize: 12, textDecoration: "underline" }}
-        >
-          Open backend /health
-        </a>
-      </div>
-
-      {loading && <div>Loading courses…</div>}
+    <section>
+      {loading && <div className="muted">Loading courses…</div>}
 
       {!loading && err && (
-        <div style={{ color: "crimson" }}>
+        <div className="alert">
           <div style={{ fontWeight: 700 }}>Failed to load courses</div>
-          <div style={{ fontFamily: "monospace", whiteSpace: "pre-wrap" }}>{err}</div>
-          <div style={{ marginTop: 10, opacity: 0.85 }}>
-            Check that the backend has <span style={{ fontFamily: "monospace" }}>/api/courses</span> and CORS allows <span style={{ fontFamily: "monospace" }}>http://localhost:3000</span>.
-          </div>
+          <div style={{ fontFamily: "monospace", whiteSpace: "pre-wrap", fontSize: 13, marginTop: 6 }}>{err}</div>
         </div>
       )}
 
       {!loading && !err && items.length === 0 && (
-        <div style={{ opacity: 0.8 }}>
-          No courses returned. Either the DB has none, or the route is returning a different shape.
-        </div>
+        <div className="card muted">No courses available yet.</div>
       )}
 
       {!loading && !err && items.length > 0 && (
-        <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 12 }}>
+        <div className="grid grid-3">
           {items.map((c) => {
             const id = courseId(c);
             return (
-              <li key={id || Math.random()} style={{ border: "1px solid #eee", borderRadius: 12, padding: 14 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
-                  <div>
-                    <div style={{ fontWeight: 700 }}>{courseTitle(c)}</div>
-                    {c.description && <div style={{ opacity: 0.8, marginTop: 4 }}>{c.description}</div>}
-                    <div style={{ fontSize: 12, opacity: 0.65, marginTop: 8 }}>
-                      id: <span style={{ fontFamily: "monospace" }}>{id || "(missing id field)"}</span>
-                    </div>
-                  </div>
-
-                  {id ? (
-                    <Link
-                      href={`/courses/${id}`}
-                      style={{ alignSelf: "center", textDecoration: "underline", fontWeight: 600 }}
-                    >
-                      View →
-                    </Link>
-                  ) : (
-                    <span style={{ alignSelf: "center", opacity: 0.6 }}>No id</span>
-                  )}
-                </div>
-              </li>
+              <div key={id || Math.random()} className="card">
+                <div className="h2">{courseTitle(c)}</div>
+                {c.description && <p className="muted" style={{ marginTop: 8 }}>{c.description}</p>}
+                {id ? (
+                  <Link href={`/courses/${id}`} className="link" style={{ display: "inline-block", marginTop: 12 }}>
+                    View course →
+                  </Link>
+                ) : (
+                  <span className="muted" style={{ display: "block", marginTop: 12 }}>Unavailable</span>
+                )}
+              </div>
             );
           })}
-        </ul>
+        </div>
       )}
+
+      <div className="muted" style={{ fontSize: 12, marginTop: 20 }}>
+        API: <span style={{ fontFamily: "monospace" }}>{apiBase}</span>
+      </div>
     </section>
   );
 }

@@ -37,22 +37,26 @@ export default function DashboardPage() {
   }
 
   return (
-    <main style={{ minHeight: "100vh", padding: 24, color: "white" }}>
-      <div style={{ maxWidth: 920, margin: "0 auto", border: "1px solid #2a2a2a", borderRadius: 16, padding: 24, background: "#121212" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-          <h1 style={{ fontSize: 32, margin: 0 }}>Dashboard</h1>
-          <button onClick={logout} style={{ padding: "10px 14px", borderRadius: 12, border: "1px solid #2a2a2a", background: "#1a1a1a", color: "white" }}>
-            Logout
-          </button>
+    <main>
+      <div className="card" style={{ maxWidth: 760, margin: "0 auto" }}>
+        <div className="spread">
+          <h1 className="h1" style={{ margin: 0 }}>Dashboard</h1>
+          <button onClick={logout} className="btn danger">Logout</button>
         </div>
 
-        <p style={{ opacity: 0.85 }}>
-          Protected route. If token is missing you get bounced to /login. If token is invalid, the /auth/me check fails.
+        <p className="muted" style={{ marginTop: 10 }}>
+          You&apos;re signed in. From here you can jump into the catalog and keep going on a course.
         </p>
 
-        <div style={{ marginTop: 16, padding: 16, borderRadius: 12, border: "1px solid #2a2a2a", background: "#0b0b0b" }}>
-          <div>Status: <b>{status}</b></div>
-          <pre style={{ marginTop: 12, whiteSpace: "pre-wrap" }}>{JSON.stringify(result, null, 2)}</pre>
+        <div className="row" style={{ marginTop: 8 }}>
+          <a className="btn primary" href="/courses">Browse courses</a>
+        </div>
+
+        <hr className="hr" />
+
+        <div className="stack">
+          <div>Account check: <b>{status}</b></div>
+          <pre style={{ whiteSpace: "pre-wrap", margin: 0, fontSize: 13, color: "var(--muted)" }}>{JSON.stringify(result, null, 2)}</pre>
         </div>
       </div>
     </main>
