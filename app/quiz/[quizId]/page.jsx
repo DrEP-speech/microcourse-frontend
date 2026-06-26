@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { apiFetch } from "../../lib/http";
-import { getToken } from "../../lib/auth";
+import { apiFetch } from "../../../lib/http";
+import { getToken } from "../../../lib/auth";
 
 export default function QuizPage() {
   const router = useRouter();
