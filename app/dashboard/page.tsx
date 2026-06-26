@@ -21,7 +21,7 @@ export default function DashboardPage() {
       setStatus("checking");
       // common endpoint we already scaffolded before: /api/auth/ping-protected
       try {
-        const data = await apiFetch<any>("auth/ping-protected", { method: "GET" });
+        const data = await apiFetch<any>("auth/me", { method: "GET" });
         setStatus("ok");
         setResult(data);
       } catch (err: any) {
@@ -47,7 +47,7 @@ export default function DashboardPage() {
         </div>
 
         <p style={{ opacity: 0.85 }}>
-          Protected route. If token is missing you get bounced to /login. If token is invalid, ping-protected fails.
+          Protected route. If token is missing you get bounced to /login. If token is invalid, the /auth/me check fails.
         </p>
 
         <div style={{ marginTop: 16, padding: 16, borderRadius: 12, border: "1px solid #2a2a2a", background: "#0b0b0b" }}>
