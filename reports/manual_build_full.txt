@@ -1,0 +1,45 @@
+--- npm run build (full log) ---
+
+> microcourse-frontend@1.0.0 build
+> next build
+
+   Γû▓ Next.js 15.5.9
+   - Environments: .env.local, .env.production
+
+   Creating an optimized production build ...
+Failed to compile.
+
+./lib/api.ts
+Error:   x Unknown regular expression flags.
+    ,-[C:\Users\eddwa\Downloads\microcourse-frontend-cloud-ready\microcourse-frontend\lib\api.ts:23:1]
+ 20 |   const url = path.startsWith('http')
+ 21 |     ? path
+ 22 |     : base
+ 23 |       ? (base.replace(/\\/$/, '') + (path.startsWith('/') ? path : '/' + path))
+    :                       ^^^^^
+ 24 |       : path;
+ 25 | 
+ 25 |   const { body, headers, ...rest } = options;
+    `----
+  x Expression expected
+    ,-[C:\Users\eddwa\Downloads\microcourse-frontend-cloud-ready\microcourse-frontend\lib\api.ts:23:1]
+ 20 |   const url = path.startsWith('http')
+ 21 |     ? path
+ 22 |     : base
+ 23 |       ? (base.replace(/\\/$/, '') + (path.startsWith('/') ? path : '/' + path))
+    :                             ^
+ 24 |       : path;
+ 25 | 
+ 25 |   const { body, headers, ...rest } = options;
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./lib/api.ts
+./lib/auth.js
+./app/login/page.tsx
+
+
+> Build failed because of webpack errors

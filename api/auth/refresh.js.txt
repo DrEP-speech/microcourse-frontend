@@ -1,0 +1,10 @@
+// POST /api/auth/refresh
+app.post('/api/auth/refresh', (req, res) => {
+  const rt = req.cookies?.refreshToken;
+  if (!rt) return res.status(401).json({ success:false, message:'No refresh cookie' });
+
+  // verify refresh, issue new access; optionally rotate refresh
+  const payload = verifyRefresh(rt);
+  const newAccess = signAccess({ _id: payload.sub, email: payload.email, role: payload.role });
+  return res.json({ success:true, accessToken: newAccess });
+});

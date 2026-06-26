@@ -1,0 +1,24 @@
+--- package.json scripts ---
+
+test              : jest --runInBand
+test:ci           : jest --ci --config ./jest.config.cjs
+verify            : npm run test:ci && npm run build
+start:next        : next start
+dev:3001          : next dev -p 3001
+postbuild         : node -e "const fs=require('fs'); const path=require('path');
+                    const srcStatic=path.join('.next','static');
+                    const dstStatic=path.join('.next','standalone','.next','static');
+                    fs.mkdirSync(dstStatic,{recursive:true});
+                    if(fs.existsSync(srcStatic)) fs.cpSync(srcStatic,dstStatic,{recursive:true});
+                    const pub='public';
+                    const dstPub=path.join('.next','standalone','public');
+                    if(fs.existsSync(pub)) { fs.mkdirSync(dstPub,{recursive:true}); fs.cpSync(pub,dstPub,{recursive:true}); }
+                    console.log('postbuild: copied static/public into standalone');"
+dev               : next dev -p 3000
+build             : next build
+start             : next start -p 3000
+lint              : next lint
+fix:buildblockers : powershell -ExecutionPolicy Bypass -File scripts/02_fix_build_blockers.ps1
+package:prodzip   : powershell -ExecutionPolicy Bypass -File scripts/99_make_production_zip.ps1
+
+

@@ -1,0 +1,150 @@
+openapi: 3.0.3
+info:
+  title: MicroCourse API
+  version: "1.0.0"
+  description: |
+    Auth + health endpoints.
+    Access token via **Bearer**, refresh via **httpOnly cookie** (`refresh_token`).
+
+servers:
+  - url: http://localhost:10003
+    description: Local Dev
+
+tags:
+  - name: Health
+    description: Liveness & readiness
+  - name: Auth
+    description: Authentication, identity, and guarded utilities
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: refresh_token
+  schemas:
+    AuthUser:
+      type: object
+      properties:
+        _id: { type: string }
+        email: { type: string, format: email }
+        role: { type: string, enum: [owner, admin, user] }
+        profile: { type: object }
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email, example: owner@example.com }
+        password: { type: string, example: ChangeMe123? }
+    LoginResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        token: { type: string, description: JWT access token }
+        user: { $ref: "#/components/schemas/AuthUser" }
+
+security:
+  - bearerAuth: []   # default for all operations unless overridden
+
+paths:
+  /ping:
+    get:
+      tags: [Health]
+      summary: Liveness
+      operationId: ping
+      security: []   # public
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  ts: { type: string }
+
+  /ready:
+    get:
+      tags: [Health]
+      summary: Readiness (DB connected)
+      operationId: ready
+      security: []   # public
+      responses:
+        "200": { description: Ready }
+        "503": { description: Not ready }
+
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: Login and receive a bearer access token
+      operationId: authLogin
+      security: []   # public
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LoginRequest" }
+      responses:
+        "200":
+          description: Logged in
+          headers:
+            Set-Cookie:
+              description: httpOnly cookie with refresh_token
+              schema: { type: string }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LoginResponse" }
+        "401": { description: Invalid credentials }
+
+  /api/auth/whoami:
+    get:
+      tags: [Auth]
+      summary: Return JWT payload info
+      operationId: authWhoami
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  auth:
+                    type: object
+                    properties:
+                      sub: { type: string }
+                      role: { type: string }
+                      email: { type: string }
+
+  /api/auth/admin/ping:
+    get:
+      tags: [Auth]
+      summary: Guarded ping (owner/admin)
+      operationId: authAdminPing
+      responses:
+        "200": { description: OK }
+        "403": { description: Forbidden }
+
+  /api/auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Issue a new access token using cookie-based refresh token
+      operationId: authRefresh
+      security: [{ cookieAuth: [] }]
+      responses:
+        "200":
+          description: New access token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  token: { type: string }
+        "401": { description: Invalid or missing refresh token }

@@ -1,0 +1,15 @@
+{
+  "student": {
+    "password": "Password123!",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NmY4MzcyNDUzNmEwZjVhNDZmYzYyYyIsImVtYWlsIjoic2FtLnN0dWRlbnQrMjAyNjAxMjAtMDczMDI1QG1pY3JvY291cnNlLmxvY2FsIiwicm9sZSI6InN0dWRlbnQiLCJpYXQiOjE3Njg5MTU4MjcsImV4cCI6MTc2OTUyMDYyN30.QZC6NwTIvn4lBksNn1TUNwA5iokgs5xsjKpWumgQhPw",
+    "email": "sam.student+20260120-073025@microcourse.local"
+  },
+  "instructor": {
+    "password": "Password123!",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NmY4MzcxNDUzNmEwZjVhNDZmYzYyOSIsImVtYWlsIjoiaXZ5Lmluc3RydWN0b3IrMjAyNjAxMjAtMDczMDI1QG1pY3JvY291cnNlLmxvY2FsIiwicm9sZSI6Imluc3RydWN0b3IiLCJpYXQiOjE3Njg5MTU4MjcsImV4cCI6MTc2OTUyMDYyN30.4EWrXJuGsssYobhYwtly9_yBYQQN6GB8ZuNZDONOifQ",
+    "email": "ivy.instructor+20260120-073025@microcourse.local"
+  },
+  "apiBase": "http://localhost:4000/api",
+  "quizId": null,
+  "courseId": null
+}

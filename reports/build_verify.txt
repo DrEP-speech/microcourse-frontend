@@ -1,0 +1,17 @@
+
+--- .next verification ---
+❌ BUILD_ID is missing. next start will fail.
+Listing .next top-level:
+
+Name
+----
+cache
+diagnostics
+server
+types
+package.json
+trace
+
+
+
+Stop here. Paste reports\manual_build_full.txt (last ~120 lines) and reports\build_verify.txt.

@@ -1,0 +1,10 @@
+
+> microcourse-frontend@1.0.0 build
+> next build
+
+   ▲ Next.js 15.5.9
+   - Environments: .env.local, .env.production
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 4.0s
+   Linting and checking validity of types ...

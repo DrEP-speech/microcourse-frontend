@@ -1,0 +1,13 @@
+Failed to compile.
+
+./_backup_auth_fix_20251226_233819/AuthContext.tsx:4:42
+Type error: Module '"@/lib/auth"' has no exported member 'me'.
+
+[0m [90m 2 |[39m
+ [90m 3 |[39m [36mimport[39m [33mReact[39m[33m,[39m { createContext[33m,[39m useContext[33m,[39m useEffect[33m,[39m useMemo[33m,[39m useState } [36mfrom[39m [32m"react"[39m[33m;[39m
+[31m[1m>[22m[39m[90m 4 |[39m [36mimport[39m { getToken[33m,[39m setToken[33m,[39m clearToken[33m,[39m me [36mas[39m fetchMe } [36mfrom[39m [32m"@/lib/auth"[39m[33m;[39m
+ [90m   |[39m                                          [31m[1m^[22m[39m
+ [90m 5 |[39m
+ [90m 6 |[39m [36mexport[39m type [33mUser[39m [33m=[39m {
+ [90m 7 |[39m   id[33m?[39m[33m:[39m string[33m;[39m[0m
+Next.js build worker exited with code: 1 and signal: null

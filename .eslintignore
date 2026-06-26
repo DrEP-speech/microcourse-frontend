@@ -1,0 +1,6 @@
+.next
+out
+dist
+_archive*
+*backup*
+fix-backup*

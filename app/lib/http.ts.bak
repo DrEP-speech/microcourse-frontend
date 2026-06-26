@@ -1,0 +1,65 @@
+/**
+ * Canonical HTTP helper for the Next.js /app router.
+ * This file is the single source of truth.
+ */
+
+export const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/+$/, "") || "http://localhost:5050";
+
+const TOKEN_KEY = "microcourse_token";
+
+export function setStoredToken(token: string): void {
+  try {
+    if (typeof window !== "undefined") localStorage.setItem(TOKEN_KEY, token);
+  } catch {}
+}
+
+export function getStoredToken(): string | null {
+  try {
+    if (typeof window !== "undefined") return localStorage.getItem(TOKEN_KEY);
+  } catch {}
+  return null;
+}
+
+export function clearStoredToken(): void {
+  try {
+    if (typeof window !== "undefined") localStorage.removeItem(TOKEN_KEY);
+  } catch {}
+}
+
+type ApiFetchOptions = RequestInit & {
+  data?: any;
+  token?: string | null;
+};
+
+export async function apiFetch(path: string, opts: ApiFetchOptions = {}) {
+  const url = path.startsWith("http") ? path : `${API_BASE}${path.startsWith("/") ? "" : "/"}${path}`;
+
+  const headers = new Headers(opts.headers || {});
+  headers.set("Content-Type", headers.get("Content-Type") || "application/json");
+
+  const token = opts.token ?? getStoredToken();
+  if (token) headers.set("Authorization", `Bearer ${token}`);
+
+  const init: RequestInit = {
+    ...opts,
+    headers,
+    body: opts.data !== undefined ? JSON.stringify(opts.data) : opts.body,
+  };
+
+  const res = await fetch(url, init);
+
+  // Helpful error payload for debugging
+  if (!res.ok) {
+    let text = "";
+    try { text = await res.text(); } catch {}
+    const err: any = new Error(`apiFetch ${res.status} ${res.statusText} - ${url}`);
+    err.status = res.status;
+    err.body = text;
+    throw err;
+  }
+
+  const ct = res.headers.get("content-type") || "";
+  if (ct.includes("application/json")) return res.json();
+  return res.text();
+}

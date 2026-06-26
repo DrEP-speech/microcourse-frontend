@@ -1,0 +1,12 @@
+Failed to compile.
+
+./lib/useUser.ts:2:10
+Type error: Module '"./auth"' has no exported member 'me'.
+
+[0m [90m 1 |[39m [36mimport[39m { useEffect[33m,[39m useState } [36mfrom[39m [32m"react"[39m[33m;[39m
+[31m[1m>[22m[39m[90m 2 |[39m [36mimport[39m { me } [36mfrom[39m [32m"./auth"[39m[33m;[39m
+ [90m   |[39m          [31m[1m^[22m[39m
+ [90m 3 |[39m
+ [90m 4 |[39m type [33mMeResult[39m [33m=[39m [33mAwaited[39m[33m<[39m[33mReturnType[39m[33m<[39m[36mtypeof[39m me[33m>>[39m[33m;[39m
+ [90m 5 |[39m type [33mUser[39m [33m=[39m [33mMeResult[39m [36mextends[39m { user[33m:[39m infer [33mU[39m }[0m
+Next.js build worker exited with code: 1 and signal: null

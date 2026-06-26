@@ -1,0 +1,19 @@
+Failed to compile.
+
+./app/dashboard/page.js
+Error:   [31mx[0m The "use client" directive must be placed before other expressions. Move it to the top of the file to resolve this issue.
+   ,-[[36;1;4mC:\Users\eddwa\Downloads\microcourse-frontend-cloud-ready\microcourse-frontend\frontend\app\dashboard\page.js[0m:4:1]
+ [2m1[0m | 'use client';
+ [2m2[0m | 
+ [2m3[0m | export const dynamic = "force-dynamic";
+ [2m4[0m | "use client";
+   : [35;1m^^^^^^^^^^^^^[0m
+ [2m5[0m | 
+ [2m6[0m | import { useAuth } from "../../contexts/AuthContext";
+   `----
+
+Import trace for requested module:
+./app/dashboard/page.js
+
+
+> Build failed because of webpack errors
