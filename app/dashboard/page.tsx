@@ -20,16 +20,14 @@ export default function DashboardPage() {
     (async () => {
       setStatus("checking");
       // common endpoint we already scaffolded before: /api/auth/ping-protected
-      const res = await apiFetch<any>("/api/auth/ping-protected", { method: "GET" });
-
-      if (!res.ok) {
+      try {
+        const data = await apiFetch<any>("auth/ping-protected", { method: "GET" });
+        setStatus("ok");
+        setResult(data);
+      } catch (err: any) {
         setStatus("fail");
-        setResult({ error: res.error, status: res.status, data: res.data });
-        return;
+        setResult({ error: err?.message || String(err) });
       }
-
-      setStatus("ok");
-      setResult(res.data);
     })();
   }, [router]);
 
