@@ -81,6 +81,13 @@ export default function DashboardPage() {
             <a className="btn primary" href="/caregiver/breaks">Go to movement breaks</a>
           </div>
         )}
+        {role === "caregiver" && (
+          <div className="card glow-amber" style={{ marginTop: 16 }}>
+            <h2 className="h2 glow-text" style={{ marginBottom: 8 }}>Microlearning</h2>
+            <p className="muted" style={{ marginBottom: 12 }}>Swipe through short lessons assigned by your provider.</p>
+            <a className="btn primary" href="/caregiver/lessons">Go to microlearning</a>
+          </div>
+        )}
         {role === "professional" && (
           <div className="card glow-amber" style={{ marginTop: 16 }}>
             <h2 className="h2 glow-text" style={{ marginBottom: 8 }}>Your client roster</h2>

@@ -69,6 +69,12 @@ export default function SiteNav() {
               Movement breaks
             </Link>
           )}
+          {authed && role === "caregiver" && (
+            <Link className={`badge${pathname?.startsWith("/caregiver/lessons") ? " active" : ""}`} href="/caregiver/lessons"
+              aria-current={pathname?.startsWith("/caregiver/lessons") ? "page" : undefined}>
+              Microlearning
+            </Link>
+          )}
           {authed && role === "professional" && (
             <Link className={`badge${pathname === "/professional" ? " active" : ""}`} href="/professional"
               aria-current={pathname === "/professional" ? "page" : undefined}>

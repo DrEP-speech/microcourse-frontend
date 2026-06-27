@@ -75,6 +75,7 @@ export default function ClientHistoryPage() {
         <div className="row" style={{ justifyContent: "center", marginTop: "var(--space-4)" }}>
           <Link className="btn primary" href={`/professional/clients/${id}/boards`}>Choice boards →</Link>
           <Link className="btn secondary" href={`/professional/clients/${id}/breaks`}>Movement breaks →</Link>
+          <Link className="btn secondary" href={`/professional/clients/${id}/lessons`}>Microlearning →</Link>
         </div>
       </section>
 
