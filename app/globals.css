@@ -423,7 +423,7 @@ body > main,
   position: relative;
   width: 100%;
   aspect-ratio: 1;
-  max-height: 560px;
+  max-height: 680px;
 }
 .hero-canvas-wrap canvas {
   display: block;
