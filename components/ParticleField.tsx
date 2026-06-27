@@ -65,35 +65,68 @@ function sphereTarget(i: number, total: number, cx: number, cy: number, r: numbe
   };
 }
 
-/* Lobed "brain" cluster — a bumpy golden-spiral sphere plus a thin
-   trailing stem, echoing the Dala hero constellation. */
-function brainTarget(i: number, total: number, cx: number, cy: number, r: number) {
-  const stemCount = Math.floor(total * 0.06);
+/* Anatomical lobe map for the "brain" cluster — cerebrum, frontal lobe,
+   temporal lobe, occipital lobe, cerebellum + brainstem — each rendered
+   as its own wrinkled golden-spiral mass so the silhouette reads as a
+   real (if stylized, digital) brain rather than a single bumpy sphere.
+   Offsets/radii are in units of `r`. */
+const BRAIN_LOBES = [
+  { ox: 0,     oy: -0.10, rx: 0.86, ry: 0.64, w: 0.40, wrinkle: 0.95 }, // cerebrum
+  { ox: 0.66,  oy: -0.30, rx: 0.46, ry: 0.38, w: 0.20, wrinkle: 1.25 }, // frontal lobe
+  { ox: 0.30,  oy: 0.32,  rx: 0.48, ry: 0.28, w: 0.17, wrinkle: 0.7 },  // temporal lobe
+  { ox: -0.70, oy: -0.05, rx: 0.36, ry: 0.32, w: 0.13, wrinkle: 1.05 }, // occipital lobe
+  { ox: -0.15, oy: 0.54,  rx: 0.24, ry: 0.18, w: 0.10, wrinkle: 1.8 },  // cerebellum
+] as const;
 
+function brainTarget(i: number, total: number, cx: number, cy: number, r: number) {
+  const stemCount = Math.floor(total * 0.05);
+  const cerebellum = BRAIN_LOBES[4];
+
+  /* Brainstem — trails down from the cerebellum, not the center mass. */
   if (i < stemCount) {
     const f = i / stemCount;
-    const wobble = Math.sin(f * 14) * r * 0.05;
+    const wobble = Math.sin(f * 14) * r * 0.04;
     return {
-      x: cx + wobble,
-      y: cy + r * 0.5 + f * r * 0.62,
+      x: cx + cerebellum.ox * r + wobble,
+      y: cy + cerebellum.oy * r + f * r * 0.55,
     };
   }
 
   const j = i - stemCount;
   const jt = Math.max(total - stemCount, 1);
-  const phi = Math.acos(1 - (2 * (j + 0.5)) / jt);
-  const theta = Math.PI * (1 + Math.sqrt(5)) * j;
+  const totalW = BRAIN_LOBES.reduce((s, l) => s + l.w, 0);
 
-  const lobe =
+  let lobe = BRAIN_LOBES[BRAIN_LOBES.length - 1];
+  let kLocal = j;
+  let kCount = jt;
+  let acc = 0;
+  for (let n = 0; n < BRAIN_LOBES.length; n++) {
+    const share = Math.round((BRAIN_LOBES[n].w / totalW) * jt);
+    if (j < acc + share || n === BRAIN_LOBES.length - 1) {
+      lobe = BRAIN_LOBES[n];
+      kLocal = j - acc;
+      kCount = Math.max(share, 1);
+      break;
+    }
+    acc += share;
+  }
+
+  const phi = Math.acos(1 - (2 * (kLocal + 0.5)) / kCount);
+  const theta = Math.PI * (1 + Math.sqrt(5)) * kLocal;
+
+  /* Multi-frequency surface noise = gyri/sulci wrinkle texture, denser
+     and sharper than a plain sphere bump for a more "etched circuitry"
+     read on each lobe. */
+  const wrinkle =
     1 +
-    0.16 * Math.sin(theta * 4.5) +
-    0.1 * Math.sin(phi * 6 + theta) +
-    0.07 * Math.cos(theta * 2 - phi * 3);
+    lobe.wrinkle *
+      (0.09 * Math.sin(theta * 9 + phi * 5) +
+        0.06 * Math.sin(theta * 5 - phi * 8) +
+        0.04 * Math.sin(theta * 13 + 1.7));
 
-  const rr = r * lobe;
   return {
-    x: cx + rr * Math.sin(phi) * Math.cos(theta),
-    y: cy + rr * Math.sin(phi) * Math.sin(theta) * 0.58 - r * 0.08,
+    x: cx + lobe.ox * r + lobe.rx * r * wrinkle * Math.sin(phi) * Math.cos(theta),
+    y: cy + lobe.oy * r + lobe.ry * r * wrinkle * Math.sin(phi) * Math.sin(theta),
   };
 }
 
