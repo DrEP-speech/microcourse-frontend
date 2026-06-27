@@ -1,80 +1,129 @@
 "use client";
 
 import Link from "next/link";
+import NextDynamic from "next/dynamic";
 
 export const dynamic = "force-dynamic";
 
+/* Load particle canvas client-only (no SSR) */
+const ParticleField = NextDynamic(() => import("@/components/ParticleField"), { ssr: false });
+
 const features = [
   {
-    icon: "⚡",
-    title: "Bite-sized lessons",
-    body: "Each course is broken into short, focused lessons you can finish in minutes — no 4-hour marathon required.",
+    kicker: "Lessons",
+    title: "Short.\nFocused.\nDone.",
+    body: "Every course is broken into micro-lessons you can finish on a lunch break — no marathon sessions required.",
   },
   {
-    icon: "🎯",
-    title: "Real quizzes",
-    body: "Check your understanding as you go with instant scoring and pass/fail feedback. No faking it.",
+    kicker: "Quizzes",
+    title: "Instant feedback.",
+    body: "Real questions with instant scoring and pass/fail results. You know exactly where you stand.",
   },
   {
-    icon: "📈",
-    title: "Track your progress",
-    body: "Your dashboard keeps tabs on what you've completed and surfaces exactly what's next.",
+    kicker: "Progress",
+    title: "Track everything.",
+    body: "Your dashboard surfaces what you've completed, what's next, and how far you've come.",
   },
 ];
 
 export default function HomePage() {
   return (
     <>
-      <section className="hero" aria-labelledby="hero-heading">
-        <div
-          id="hero-heading"
-          className="h1"
-          style={{ letterSpacing: "-0.03em" }}
-        >
-          Learn in small,{" "}
-          <span style={{ color: "var(--primary)" }}>focused bursts.</span>
+      {/* ── Hero ── */}
+      <section
+        className="hero container"
+        aria-labelledby="hero-heading"
+        style={{ paddingTop: "var(--space-6)", paddingBottom: "var(--space-6)" }}
+      >
+        <div className="hero-text">
+          <p className="eyebrow accent" style={{ marginBottom: 18 }}>
+            MICROCOURSE — LEARN IN BURSTS
+          </p>
+
+          <h1 id="hero-heading" className="h1">
+            Knowledge
+            <br />
+            <span style={{ color: "var(--color-plum-voltage)" }}>compounds.</span>
+            <br />
+            Start small.
+          </h1>
+
+          <p className="hero-sub">
+            MicroCourse breaks any subject into bite-sized lessons and
+            instant quizzes so you make real progress without blocking
+            out hours you don&apos;t have.
+          </p>
+
+          <div className="cta-row">
+            <Link className="btn primary" href="/register" style={{ minWidth: 160 }}>
+              Get started free
+            </Link>
+            <Link className="btn secondary" href="/courses">
+              Browse catalog
+            </Link>
+          </div>
         </div>
-        <p className="hero-sub">
-          MicroCourse breaks topics into short lessons and quick quizzes, so you
-          can make real progress without blocking out hours you don&apos;t have.
-        </p>
-        <div className="cta-row">
-          <Link className="btn primary" href="/register" style={{ minWidth: 148, fontSize: 15 }}>
-            Get started free
-          </Link>
-          <Link className="btn secondary" href="/courses">
-            Browse catalog
-          </Link>
-        </div>
+
+        <ParticleField count={800} />
       </section>
 
+      {/* ── Features ── */}
       <section
-        className="grid grid-3"
-        style={{ marginTop: 24 }}
+        className="container"
+        style={{ paddingBottom: "var(--space-10)" }}
         aria-label="Key features"
       >
-        {features.map(({ icon, title, body }) => (
-          <div key={title} className="card" style={{ padding: "28px 24px" }}>
-            <div
-              aria-hidden="true"
-              style={{
-                fontSize: 28,
-                marginBottom: 12,
-                width: 52,
-                height: 52,
-                borderRadius: 12,
-                background: "var(--primary-bg)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              {icon}
+        {/* hairline divider */}
+        <div className="hr" style={{ marginBottom: "var(--space-6)" }} />
+
+        <div className="grid grid-3" style={{ gap: 15 }}>
+          {features.map(({ kicker, title, body }) => (
+            <div key={kicker} className="card" style={{ padding: "30px 28px" }}>
+              <p className="eyebrow" style={{ marginBottom: 14 }}>{kicker}</p>
+              <h2
+                className="h2"
+                style={{
+                  whiteSpace: "pre-line",
+                  fontSize: "var(--text-heading-sm)",
+                  marginBottom: 14,
+                  fontWeight: "var(--weight-semibold)",
+                  letterSpacing: "0.021em",
+                  lineHeight: 1.25,
+                }}
+              >
+                {title}
+              </h2>
+              <p style={{ color: "var(--color-ash)", fontSize: "var(--text-body)", lineHeight: 1.65, letterSpacing: "0.025em" }}>
+                {body}
+              </p>
             </div>
-            <div className="h2" style={{ marginBottom: 8 }}>{title}</div>
-            <p style={{ color: "var(--text-2)", fontSize: 15, lineHeight: 1.65 }}>{body}</p>
+          ))}
+        </div>
+
+        {/* Bottom CTA strip */}
+        <div
+          style={{
+            marginTop: "var(--space-6)",
+            border: "1px solid var(--color-border)",
+            borderRadius: "var(--radius-pill)",
+            padding: "28px 32px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 16,
+            flexWrap: "wrap",
+          }}
+        >
+          <div>
+            <p className="eyebrow" style={{ marginBottom: 8 }}>Ready to begin?</p>
+            <p style={{ color: "var(--color-ash)", fontSize: "var(--text-body)", letterSpacing: "0.025em" }}>
+              Create a free account and start your first micro-lesson today.
+            </p>
           </div>
-        ))}
+          <Link className="btn primary" href="/register">
+            Create free account
+          </Link>
+        </div>
       </section>
     </>
   );

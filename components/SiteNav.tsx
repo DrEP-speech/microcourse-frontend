@@ -38,53 +38,33 @@ export default function SiteNav() {
       <nav aria-label="Main navigation">
         <div className="row">
           <Link href="/" className="brand" aria-label="MicroCourse home">
-            <span className="brand-icon" aria-hidden="true">📚</span>
+            {/* SVG icon — no emoji per skill rule no-emoji-icons */}
+            <span className="brand-icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="1" y="1" width="5.5" height="5.5" rx="1" fill="white" fillOpacity="0.9"/>
+                <rect x="7.5" y="1" width="5.5" height="5.5" rx="1" fill="white" fillOpacity="0.6"/>
+                <rect x="1" y="7.5" width="5.5" height="5.5" rx="1" fill="white" fillOpacity="0.6"/>
+                <rect x="7.5" y="7.5" width="5.5" height="5.5" rx="1" fill="white" fillOpacity="0.35"/>
+              </svg>
+            </span>
             MicroCourse
           </Link>
-          <Link className={`badge${pathname === "/courses" ? " active" : ""}`} href="/courses"
-            aria-current={pathname === "/courses" ? "page" : undefined}>
+
+          <Link
+            className={`badge${pathname === "/courses" ? " active" : ""}`}
+            href="/courses"
+            aria-current={pathname === "/courses" ? "page" : undefined}
+          >
             Catalog
           </Link>
+
           {authed && (
-            <Link className={`badge${pathname === "/dashboard" ? " active" : ""}`} href="/dashboard"
-              aria-current={pathname === "/dashboard" ? "page" : undefined}>
+            <Link
+              className={`badge${pathname === "/dashboard" ? " active" : ""}`}
+              href="/dashboard"
+              aria-current={pathname === "/dashboard" ? "page" : undefined}
+            >
               Dashboard
-            </Link>
-          )}
-          {authed && role === "caregiver" && (
-            <Link className={`badge${pathname === "/caregiver" ? " active" : ""}`} href="/caregiver"
-              aria-current={pathname === "/caregiver" ? "page" : undefined}>
-              Check-in
-            </Link>
-          )}
-          {authed && role === "caregiver" && (
-            <Link className={`badge${pathname?.startsWith("/caregiver/boards") ? " active" : ""}`} href="/caregiver/boards"
-              aria-current={pathname?.startsWith("/caregiver/boards") ? "page" : undefined}>
-              Choice boards
-            </Link>
-          )}
-          {authed && role === "caregiver" && (
-            <Link className={`badge${pathname?.startsWith("/caregiver/breaks") ? " active" : ""}`} href="/caregiver/breaks"
-              aria-current={pathname?.startsWith("/caregiver/breaks") ? "page" : undefined}>
-              Movement breaks
-            </Link>
-          )}
-          {authed && role === "caregiver" && (
-            <Link className={`badge${pathname?.startsWith("/caregiver/lessons") ? " active" : ""}`} href="/caregiver/lessons"
-              aria-current={pathname?.startsWith("/caregiver/lessons") ? "page" : undefined}>
-              Microlearning
-            </Link>
-          )}
-          {authed && role === "professional" && (
-            <Link className={`badge${pathname === "/professional" ? " active" : ""}`} href="/professional"
-              aria-current={pathname === "/professional" ? "page" : undefined}>
-              Clients
-            </Link>
-          )}
-          {authed && role === "professional" && (
-            <Link className={`badge${pathname?.startsWith("/professional/ceu") ? " active" : ""}`} href="/professional/ceu"
-              aria-current={pathname?.startsWith("/professional/ceu") ? "page" : undefined}>
-              CEU courses
             </Link>
           )}
         </div>
@@ -93,13 +73,32 @@ export default function SiteNav() {
       <div className="row" role="group" aria-label="Account actions">
         {!authed ? (
           <>
-            <Link className="btn secondary" href="/login">Login</Link>
-            <Link className="btn primary" href="/register">Get started</Link>
+            <Link className="badge" href="/login" style={{ color: "var(--color-smoke)" }}>
+              Sign in
+            </Link>
+            <Link className="btn primary" href="/register" style={{ minHeight: 36, fontSize: 12 }}>
+              Get started
+            </Link>
           </>
         ) : (
           <>
-            {role && <span className="badge" aria-label={`Role: ${role}`}>{role}</span>}
-            <button className="btn danger" onClick={onLogout} aria-label="Log out of your account">Logout</button>
+            {role && (
+              <span
+                className="badge active"
+                aria-label={`Signed in as ${role}`}
+                style={{ borderColor: "var(--color-plum-voltage)", color: "var(--color-plum-voltage)", border: "1px solid" }}
+              >
+                {role}
+              </span>
+            )}
+            <button
+              className="btn danger"
+              onClick={onLogout}
+              aria-label="Log out of your account"
+              style={{ minHeight: 36, fontSize: 12 }}
+            >
+              Logout
+            </button>
           </>
         )}
       </div>
