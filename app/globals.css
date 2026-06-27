@@ -692,3 +692,68 @@ p { margin: 0; }
   color: #06140f;
   flex-shrink: 0;
 }
+
+/* ─── Choice boards (Choiceworks-style visual choice tiles) ─── */
+.choice-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: var(--space-4);
+}
+@media (max-width: 760px) { .choice-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+@media (max-width: 460px) { .choice-grid { grid-template-columns: 1fr; } }
+
+.choice-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-6) var(--space-3);
+  min-height: 140px;
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border);
+  background: rgba(255,255,255,0.02);
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  color: var(--text);
+  font-size: var(--text-base);
+  text-align: center;
+  transition: all var(--duration-base) var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+}
+.choice-tile .choice-icon { font-size: 40px; line-height: 1; }
+.choice-tile:hover {
+  border-color: var(--glow-teal);
+  background: rgba(45,212,191,0.08);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-glow);
+}
+.choice-tile.picked {
+  border-color: var(--glow-yellow);
+  background: rgba(251,191,36,0.14);
+  box-shadow: 0 0 0 1px var(--glow-yellow), 0 0 28px rgba(251,191,36,0.45);
+  animation: choicePulse 380ms var(--ease-out);
+}
+@keyframes choicePulse {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+/* Builder: editable item row */
+.board-item-row {
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  gap: var(--space-2);
+  align-items: center;
+}
+@media (max-width: 520px) { .board-item-row { grid-template-columns: 56px 1fr auto; } }
+
+.board-picker-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}

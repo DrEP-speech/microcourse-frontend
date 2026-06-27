@@ -52,9 +52,15 @@ export default function SiteNav() {
             </Link>
           )}
           {authed && role === "caregiver" && (
-            <Link className={`badge${pathname?.startsWith("/caregiver") ? " active" : ""}`} href="/caregiver"
-              aria-current={pathname?.startsWith("/caregiver") ? "page" : undefined}>
+            <Link className={`badge${pathname === "/caregiver" ? " active" : ""}`} href="/caregiver"
+              aria-current={pathname === "/caregiver" ? "page" : undefined}>
               Check-in
+            </Link>
+          )}
+          {authed && role === "caregiver" && (
+            <Link className={`badge${pathname?.startsWith("/caregiver/boards") ? " active" : ""}`} href="/caregiver/boards"
+              aria-current={pathname?.startsWith("/caregiver/boards") ? "page" : undefined}>
+              Choice boards
             </Link>
           )}
           {authed && role === "professional" && (

@@ -72,6 +72,9 @@ export default function ClientHistoryPage() {
       <section className="hero" style={{ paddingTop: "var(--space-6)", paddingBottom: "var(--space-6)" }}>
         <h1 className="h1 glow-text">{client?.name}</h1>
         <p className="hero-sub">{client?.discipline} · {history.length} check-in{history.length === 1 ? "" : "s"} recorded</p>
+        <div className="row" style={{ justifyContent: "center", marginTop: "var(--space-4)" }}>
+          <Link className="btn primary" href={`/professional/clients/${id}/boards`}>Choice boards →</Link>
+        </div>
       </section>
 
       <div className="grid grid-3" style={{ marginBottom: "var(--space-8)" }}>
