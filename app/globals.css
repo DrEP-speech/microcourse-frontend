@@ -1,38 +1,49 @@
 /* ─── Google Fonts: Poppins (headings) + Inter (body) ─── */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800&display=swap');
 
-/* ─── Design Tokens — E-learning dark theme ─── */
+/* ─── Design Tokens — Immersive glow theme ─── */
 :root {
-  /* Core surfaces */
-  --bg:         #080d1a;
-  --surface:    #0d1426;
-  --card:       #111827;
-  --card-hover: #141e33;
+  /* Core surfaces — deep night botanical */
+  --bg:         #070907;
+  --surface:    #0c1210;
+  --card:       #0f1815;
+  --card-hover: #142019;
 
   /* Text */
-  --text:       #f0f4ff;
-  --text-2:     #c4cfe8;
-  --muted:      #8a99bb;
+  --text:       #f3f7f1;
+  --text-2:     #c8d6cc;
+  --muted:      #87998d;
 
   /* Borders */
-  --border:     #1e2d50;
-  --border-2:   #2a3f6e;
+  --border:     #1d2e25;
+  --border-2:   #2c4636;
 
-  /* Brand — indigo primary */
-  --primary:    #6366f1;
-  --primary-2:  #4f46e5;
-  --primary-bg: rgba(99,102,241,0.12);
+  /* Brand — glowing teal primary (replaces indigo) */
+  --primary:    #2dd4bf;
+  --primary-2:  #14b8a6;
+  --primary-bg: rgba(45,212,191,0.14);
 
-  /* Accent — progress orange */
-  --accent:     #f97316;
-  --accent-bg:  rgba(249,115,22,0.12);
+  /* Accent — glowing amber/orange (botanical bloom) */
+  --accent:     #f59e0b;
+  --accent-bg:  rgba(245,158,11,0.14);
+
+  /* Secondary glow — golden yellow */
+  --glow-yellow: #fbbf24;
+  --glow-teal:   #2dd4bf;
+  --glow-orange: #f97316;
 
   /* Semantic */
-  --success:    #22c55e;
-  --success-bg: rgba(34,197,94,0.10);
+  --success:    #34d399;
+  --success-bg: rgba(52,211,153,0.10);
   --danger:     #f87171;
   --danger-bg:  rgba(248,113,113,0.10);
   --info:       #38bdf8;
+
+  /* Zones of Regulation */
+  --zone-blue:   #60a5fa;
+  --zone-green:  #34d399;
+  --zone-yellow: #fbbf24;
+  --zone-red:    #f87171;
 
   /* Typography scale */
   --text-xs:    12px;
@@ -64,10 +75,11 @@
   --radius-full: 9999px;
 
   /* Shadows */
-  --shadow-sm:  0 2px 8px rgba(0,0,0,0.3);
-  --shadow-md:  0 4px 16px rgba(0,0,0,0.4);
-  --shadow-lg:  0 8px 32px rgba(0,0,0,0.5);
-  --shadow-glow: 0 0 24px rgba(99,102,241,0.25);
+  --shadow-sm:  0 2px 8px rgba(0,0,0,0.4);
+  --shadow-md:  0 4px 16px rgba(0,0,0,0.5);
+  --shadow-lg:  0 8px 32px rgba(0,0,0,0.6);
+  --shadow-glow: 0 0 24px rgba(45,212,191,0.30);
+  --shadow-glow-amber: 0 0 28px rgba(245,158,11,0.30);
 
   /* Transitions */
   --ease-out: cubic-bezier(0.0, 0.0, 0.2, 1);
@@ -94,6 +106,52 @@ body {
   font-size: var(--text-base);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ─── Immersive app-wide glow backdrop ───
+   Soft, slow-drifting botanical glow blobs behind every page, evoking the
+   reference image's neon-outlined flora on a dark field. Fixed + behind
+   content; ignored by prefers-reduced-motion. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(620px 480px at 8% 8%, rgba(45,212,191,0.16), transparent 60%),
+    radial-gradient(560px 460px at 92% 18%, rgba(245,158,11,0.14), transparent 60%),
+    radial-gradient(640px 520px at 50% 96%, rgba(251,191,36,0.10), transparent 60%),
+    var(--bg);
+  background-repeat: no-repeat;
+  animation: driftGlow 26s ease-in-out infinite alternate;
+}
+
+/* faint botanical line-art silhouettes, very low opacity, glowing edges */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image:
+    radial-gradient(2px 2px at 12% 22%, rgba(255,255,255,0.5), transparent 60%),
+    radial-gradient(2px 2px at 78% 12%, rgba(255,255,255,0.4), transparent 60%),
+    radial-gradient(1.5px 1.5px at 35% 68%, rgba(255,255,255,0.35), transparent 60%),
+    radial-gradient(2px 2px at 88% 76%, rgba(255,255,255,0.4), transparent 60%),
+    radial-gradient(1.5px 1.5px at 60% 40%, rgba(255,255,255,0.3), transparent 60%);
+}
+
+@keyframes driftGlow {
+  0%   { background-position: 0 0, 0 0, 0 0, 0 0; }
+  100% { background-position: 24px -18px, -20px 16px, 0 -14px, 0 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before { animation: none; }
 }
 
 /* ─── Accessibility: Focus rings (Priority 1) ─── */
@@ -221,8 +279,21 @@ p { margin: 0; }
 }
 .card.interactive:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
+  border-color: rgba(45,212,191,0.4);
 }
+
+/* Glowing card variant — for hero/featured surfaces across both portals */
+.card.glow {
+  border-color: rgba(45,212,191,0.30);
+  box-shadow: var(--shadow-md), 0 0 32px rgba(45,212,191,0.12);
+}
+.card.glow:hover { box-shadow: var(--shadow-lg), var(--shadow-glow); }
+.card.glow-amber {
+  border-color: rgba(245,158,11,0.30);
+  box-shadow: var(--shadow-md), 0 0 32px rgba(245,158,11,0.12);
+}
+.card.glow-amber:hover { box-shadow: var(--shadow-lg), var(--shadow-glow-amber); }
 
 /* ─── Type helpers ─── */
 .h1 { font-family: 'Poppins', sans-serif; font-size: var(--text-2xl); font-weight: 800; line-height: 1.15; }
@@ -450,4 +521,174 @@ p { margin: 0; }
   .hero { padding: var(--space-10) 0 var(--space-8); }
   .page { padding: var(--space-6) 0 var(--space-8); }
   .container { padding: 0 var(--space-4); }
+}
+
+/* ════════════════════════════════════════════════════════════
+   Portal system — caregiver / professional, immersive theme
+   ════════════════════════════════════════════════════════════ */
+
+/* Glowing section heading used to open each portal area */
+.glow-text {
+  background: linear-gradient(90deg, var(--glow-teal), var(--glow-yellow), var(--glow-orange));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 0 18px rgba(45,212,191,0.25);
+}
+
+/* Portal switcher pills (caregiver vs professional) */
+.portal-tabs { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+.portal-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.02);
+  color: var(--text-2);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  text-decoration: none;
+  transition: all var(--duration-base) var(--ease-out);
+}
+.portal-tab:hover { border-color: var(--border-2); color: var(--text); }
+.portal-tab.active {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-bg);
+  box-shadow: var(--shadow-glow);
+}
+
+/* ─── Zones of Regulation selector ─── */
+.zone-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0,1fr));
+  gap: var(--space-3);
+}
+@media (max-width: 560px) { .zone-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+
+.zone-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-2);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border);
+  background: rgba(255,255,255,0.02);
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--text-2);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  transition: all var(--duration-base) var(--ease-out);
+  min-height: 88px;
+}
+.zone-btn .zone-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  box-shadow: 0 0 14px currentColor;
+}
+.zone-btn.blue   { color: var(--zone-blue); }
+.zone-btn.green  { color: var(--zone-green); }
+.zone-btn.yellow { color: var(--zone-yellow); }
+.zone-btn.red    { color: var(--zone-red); }
+.zone-btn:hover  { border-color: var(--border-2); background: rgba(255,255,255,0.05); transform: translateY(-2px); }
+.zone-btn.selected {
+  border-color: currentColor;
+  background: rgba(255,255,255,0.06);
+  box-shadow: 0 0 0 1px currentColor, 0 0 24px currentColor;
+}
+
+/* ─── Mood Meter 2D grid (energy x pleasantness) ─── */
+.mood-meter {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background:
+    linear-gradient(135deg, rgba(248,113,113,0.18), rgba(251,191,36,0.18) 50%, transparent 50%),
+    linear-gradient(-45deg, rgba(45,212,191,0.18), rgba(96,165,250,0.18) 50%, transparent 50%),
+    var(--surface);
+  overflow: hidden;
+  cursor: crosshair;
+  touch-action: none;
+}
+.mood-meter::before, .mood-meter::after {
+  content: "";
+  position: absolute;
+  background: var(--border);
+}
+.mood-meter::before { top: 50%; left: 0; right: 0; height: 1px; }
+.mood-meter::after { left: 50%; top: 0; bottom: 0; width: 1px; }
+
+.mood-meter-axis-label {
+  position: absolute;
+  font-size: var(--text-xs);
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+}
+
+.mood-meter-dot {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--glow-yellow);
+  box-shadow: 0 0 16px var(--glow-yellow), 0 0 4px #fff;
+  transform: translate(-50%, -50%);
+  transition: left 80ms var(--ease-out), top 80ms var(--ease-out);
+  border: 2px solid rgba(255,255,255,0.6);
+}
+
+/* ─── Check-in history timeline ─── */
+.checkin-list { display: grid; gap: var(--space-3); }
+.checkin-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: rgba(255,255,255,0.02);
+}
+.checkin-zone-chip {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 10px currentColor;
+}
+.checkin-zone-chip.blue   { color: var(--zone-blue); background: var(--zone-blue); }
+.checkin-zone-chip.green  { color: var(--zone-green); background: var(--zone-green); }
+.checkin-zone-chip.yellow { color: var(--zone-yellow); background: var(--zone-yellow); }
+.checkin-zone-chip.red    { color: var(--zone-red); background: var(--zone-red); }
+
+/* ─── Client list cards (professional portal) ─── */
+.client-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.client-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, var(--glow-teal), var(--glow-orange));
+  color: #06140f;
+  flex-shrink: 0;
 }

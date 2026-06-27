@@ -51,6 +51,18 @@ export default function SiteNav() {
               Dashboard
             </Link>
           )}
+          {authed && role === "caregiver" && (
+            <Link className={`badge${pathname?.startsWith("/caregiver") ? " active" : ""}`} href="/caregiver"
+              aria-current={pathname?.startsWith("/caregiver") ? "page" : undefined}>
+              Check-in
+            </Link>
+          )}
+          {authed && role === "professional" && (
+            <Link className={`badge${pathname?.startsWith("/professional") ? " active" : ""}`} href="/professional"
+              aria-current={pathname?.startsWith("/professional") ? "page" : undefined}>
+              Clients
+            </Link>
+          )}
         </div>
       </nav>
 

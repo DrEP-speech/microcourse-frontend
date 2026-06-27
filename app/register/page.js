@@ -15,6 +15,8 @@ export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("student");
+  const [discipline, setDiscipline] = useState("SLP");
   const [msg, setMsg] = useState(null);
   const [busy, setBusy] = useState(false);
 
@@ -26,7 +28,13 @@ export default function RegisterPage() {
       const res = await fetch(`${API_BASE}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          role,
+          discipline: role === "professional" ? discipline : undefined,
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -88,6 +96,29 @@ export default function RegisterPage() {
               placeholder="••••••••"
             />
           </label>
+
+          <label className="stack">
+            <span className="muted">I am a…</span>
+            <select className="input" value={role} onChange={(e) => setRole(e.target.value)}>
+              <option value="student">Learner / general student</option>
+              <option value="caregiver">Parent / Caregiver</option>
+              <option value="professional">Therapy professional</option>
+            </select>
+          </label>
+
+          {role === "professional" && (
+            <label className="stack">
+              <span className="muted">Discipline</span>
+              <select className="input" value={discipline} onChange={(e) => setDiscipline(e.target.value)}>
+                <option value="SLP">Speech-Language Pathologist</option>
+                <option value="OT">Occupational Therapist</option>
+                <option value="PT">Physical Therapist</option>
+                <option value="Behaviorist">Behaviorist</option>
+                <option value="Psychologist">Psychologist</option>
+                <option value="Other">Other</option>
+              </select>
+            </label>
+          )}
 
           <button type="submit" disabled={busy} className="btn primary full">
             {busy ? "Creating account..." : "Create account"}
