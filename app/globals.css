@@ -47,7 +47,7 @@
   --text-heading:    36px;
   --text-heading-lg: 48px;
   --text-display:    78px;
-  --text-hero:       clamp(52px, 8vw, 96px);
+  --text-hero:       clamp(52px, 9vw, 113px);
 
   /* Weights */
   --weight-thin:     200;

@@ -65,7 +65,47 @@ function sphereTarget(i: number, total: number, cx: number, cy: number, r: numbe
   };
 }
 
-export default function ParticleField({ count = 700 }: { count?: number }) {
+/* Lobed "brain" cluster — a bumpy golden-spiral sphere plus a thin
+   trailing stem, echoing the Dala hero constellation. */
+function brainTarget(i: number, total: number, cx: number, cy: number, r: number) {
+  const stemCount = Math.floor(total * 0.06);
+
+  if (i < stemCount) {
+    const f = i / stemCount;
+    const wobble = Math.sin(f * 14) * r * 0.05;
+    return {
+      x: cx + wobble,
+      y: cy + r * 0.5 + f * r * 0.62,
+    };
+  }
+
+  const j = i - stemCount;
+  const jt = Math.max(total - stemCount, 1);
+  const phi = Math.acos(1 - (2 * (j + 0.5)) / jt);
+  const theta = Math.PI * (1 + Math.sqrt(5)) * j;
+
+  const lobe =
+    1 +
+    0.16 * Math.sin(theta * 4.5) +
+    0.1 * Math.sin(phi * 6 + theta) +
+    0.07 * Math.cos(theta * 2 - phi * 3);
+
+  const rr = r * lobe;
+  return {
+    x: cx + rr * Math.sin(phi) * Math.cos(theta),
+    y: cy + rr * Math.sin(phi) * Math.sin(theta) * 0.58 - r * 0.08,
+  };
+}
+
+type ClusterShape = "sphere" | "brain";
+
+export default function ParticleField({
+  count = 700,
+  shape = "sphere",
+}: {
+  count?: number;
+  shape?: ClusterShape;
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -91,8 +131,10 @@ export default function ParticleField({ count = 700 }: { count?: number }) {
     const W = () => canvas.offsetWidth;
     const H = () => canvas.offsetHeight;
 
+    const targetFn = shape === "brain" ? brainTarget : sphereTarget;
+
     const particles: Particle[] = Array.from({ length: count }, (_, i) => {
-      const tgt = sphereTarget(i, count, W() / 2, H() / 2, Math.min(W(), H()) * 0.38);
+      const tgt = targetFn(i, count, W() / 2, H() / 2, Math.min(W(), H()) * 0.38);
       return {
         x: Math.random() * W(),
         y: Math.random() * H(),
@@ -139,7 +181,7 @@ export default function ParticleField({ count = 700 }: { count?: number }) {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
     };
-  }, [count]);
+  }, [count, shape]);
 
   return (
     <div className="hero-canvas-wrap" aria-hidden="true">
