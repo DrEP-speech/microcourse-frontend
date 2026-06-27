@@ -13,6 +13,7 @@ interface Particle {
   shape: Shape;
   alpha: number;
   side: number;      // -1 left hemisphere, 0 midline (cerebellum/stem), +1 right hemisphere
+  lobeId: string;    // which functional region this particle belongs to (drives color)
   baseDX: number;     // resting offset from center, x (in px, pre-split)
   baseDY: number;     // resting offset from center, y (in px)
   targetX: number;    // resolved per-frame target (center + offset + live split)
@@ -21,16 +22,30 @@ interface Particle {
 
 const SHAPES: Shape[] = ["circle", "triangle", "diamond", "square"];
 
-/* Hemisphere-distinct palettes so the split reads instantly as two
-   separate masses — left runs cool/violet, right runs warm/amber,
-   midline structures (cerebellum, brainstem) blend both. */
-const LEFT_COLORS  = ["#8052ff", "#8052ff", "#8052ff", "#8052ff", "rgba(255,255,255,0.65)"];
-const RIGHT_COLORS = ["#ffb829", "#ffb829", "#ffb829", "#ffb829", "#15846e"];
-const MID_COLORS   = ["#15846e", "#15846e", "rgba(255,255,255,0.6)", "#8052ff", "#ffb829"];
+/* One micro-lesson worth of facts: each lobe gets its own color so the
+   constellation doubles as an infographic — color tells you which
+   region you're looking at, the legend on the page tells you what it
+   does. Reused verbatim by app/page.tsx so the dots in the legend and
+   the dots in the canvas always match. */
+export const LOBE_INFO = [
+  { id: "frontal",    name: "Frontal Lobe",    color: "#ffb829", blurb: "Decision-making, planning, and self-control." },
+  { id: "parietal",   name: "Parietal Lobe",   color: "#8052ff", blurb: "Sensory processing and spatial awareness." },
+  { id: "temporal",   name: "Temporal Lobe",   color: "#15846e", blurb: "Hearing, memory, and language." },
+  { id: "occipital",  name: "Occipital Lobe",  color: "#5b8def", blurb: "Visual processing." },
+  { id: "cerebellum", name: "Cerebellum",      color: "#ffffff", blurb: "Balance, coordination, and fine motor control." },
+  { id: "brainstem",  name: "Brainstem",       color: "#ffffff", blurb: "Breathing, heart rate, and other survival functions." },
+] as const;
 
-function pickColor(side: number) {
-  const pool = side < 0 ? LEFT_COLORS : side > 0 ? RIGHT_COLORS : MID_COLORS;
-  return pool[Math.floor(Math.random() * pool.length)];
+const LOBE_MAP: Record<string, (typeof LOBE_INFO)[number]> = Object.fromEntries(
+  LOBE_INFO.map((l) => [l.id, l])
+);
+
+function pickColor(lobeId: string) {
+  const info = LOBE_MAP[lobeId];
+  if (!info) return "rgba(255,255,255,0.6)";
+  /* Mostly the lobe's own color, with an occasional bone-white sparkle
+     to keep some depth/shimmer in the field. */
+  return Math.random() < 0.82 ? info.color : "rgba(255,255,255,0.55)";
 }
 
 function drawShape(ctx: CanvasRenderingContext2D, p: Particle) {
@@ -72,20 +87,21 @@ function sphereOffset(i: number, total: number, r: number) {
     dx: r * Math.sin(phi) * Math.cos(theta),
     dy: r * Math.sin(phi) * Math.sin(theta) * 0.55,
     side: 0,
+    lobeId: "parietal",
   };
 }
 
 /* ── Anatomical brain (top-down view) ───────────────────────────────
-   Two mirrored hemispheres, each built from four sub-masses (cerebral
+   Two mirrored hemispheres, each built from four sub-masses (parietal
    bulk, frontal pole, temporal lobe, occipital pole) with independent
    wrinkle frequencies for a folded-cortex texture, plus a shared
    cerebellum + brainstem on the midline. Offsets/radii are in units
    of `r`, resolved relative to hemisphere-local x = 0 (the fissure). */
 const HEMI_LOBES = [
-  { ox: 0.50, oy: -0.05, rx: 0.58, ry: 0.82, w: 0.42, wrinkle: 1.0 },  // cerebral mass
-  { ox: 0.36, oy: -0.72, rx: 0.36, ry: 0.30, w: 0.18, wrinkle: 1.3 },  // frontal pole
-  { ox: 0.52, oy: 0.18,  rx: 0.40, ry: 0.28, w: 0.16, wrinkle: 0.8 },  // temporal lobe
-  { ox: 0.40, oy: 0.76,  rx: 0.32, ry: 0.28, w: 0.14, wrinkle: 1.1 },  // occipital pole
+  { id: "parietal",  ox: 0.50, oy: -0.05, rx: 0.58, ry: 0.82, w: 0.42, wrinkle: 1.0 },
+  { id: "frontal",   ox: 0.36, oy: -0.72, rx: 0.36, ry: 0.30, w: 0.18, wrinkle: 1.3 },
+  { id: "temporal",  ox: 0.52, oy: 0.18,  rx: 0.40, ry: 0.28, w: 0.16, wrinkle: 0.8 },
+  { id: "occipital", ox: 0.40, oy: 0.76,  rx: 0.32, ry: 0.28, w: 0.14, wrinkle: 1.1 },
 ] as const;
 const HEMI_TOTAL_W = HEMI_LOBES.reduce((s, l) => s + l.w, 0);
 
@@ -119,7 +135,7 @@ function hemisphereOffset(localIndex: number, localTotal: number, mirror: 1 | -1
   const localDX = lobe.ox + lobe.rx * wrinkle * Math.sin(phi) * Math.cos(theta);
   const dy = lobe.oy + lobe.ry * wrinkle * Math.sin(phi) * Math.sin(theta);
 
-  return { dx: mirror * localDX, dy };
+  return { dx: mirror * localDX, dy, lobeId: lobe.id as string };
 }
 
 const CEREBELLUM_OY = 1.05;
@@ -132,7 +148,7 @@ function brainOffset(i: number, total: number) {
   if (i < stemCount) {
     const f = i / stemCount;
     const wobble = Math.sin(f * 14) * 0.04;
-    return { dx: wobble, dy: CEREBELLUM_OY + f * 0.55, side: 0 };
+    return { dx: wobble, dy: CEREBELLUM_OY + f * 0.55, side: 0, lobeId: "brainstem" };
   }
 
   let j = i - stemCount;
@@ -147,6 +163,7 @@ function brainOffset(i: number, total: number) {
       dx: 0.3 * wrinkle * Math.sin(phi) * Math.cos(theta),
       dy: CEREBELLUM_OY + 0.22 * wrinkle * Math.sin(phi) * Math.sin(theta),
       side: 0,
+      lobeId: "cerebellum",
     };
   }
   j -= cerebellumCount;
@@ -158,10 +175,10 @@ function brainOffset(i: number, total: number) {
 
   if (j < leftCount) {
     const off = hemisphereOffset(j, leftCount, -1);
-    return { dx: off.dx, dy: off.dy, side: -1 };
+    return { dx: off.dx, dy: off.dy, side: -1, lobeId: off.lobeId };
   }
   const off = hemisphereOffset(j - leftCount, rightCount, 1);
-  return { dx: off.dx, dy: off.dy, side: 1 };
+  return { dx: off.dx, dy: off.dy, side: 1, lobeId: off.lobeId };
 }
 
 export default function ParticleField({
@@ -212,10 +229,11 @@ export default function ParticleField({
         vx: (Math.random() - 0.5) * 0.3,
         vy: (Math.random() - 0.5) * 0.3,
         size: Math.random() * 2.5 + 1,
-        color: pickColor(off.side),
+        color: pickColor(off.lobeId),
         shape: SHAPES[Math.floor(Math.random() * SHAPES.length)],
         alpha: Math.random() * 0.6 + 0.3,
         side: off.side,
+        lobeId: off.lobeId,
         baseDX,
         baseDY,
         targetX: W() / 2 + baseDX,

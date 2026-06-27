@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import NextDynamic from "next/dynamic";
+import { LOBE_INFO } from "@/components/ParticleField";
 
 export const dynamic = "force-dynamic";
 
@@ -64,7 +65,33 @@ export default function HomePage() {
           </div>
         </div>
 
-        <ParticleField count={2200} shape="brain" />
+        <div className="hero-canvas-col">
+          <ParticleField count={2200} shape="brain" />
+
+          <div className="lobe-legend" aria-label="Brain lobe key — your first micro-lesson">
+            <p className="eyebrow accent" style={{ marginBottom: 10 }}>
+              YOUR FIRST MICRO-LESSON
+            </p>
+            <p style={{ color: "var(--color-ash)", fontSize: "var(--text-body-sm)", letterSpacing: "0.025em", marginBottom: 14 }}>
+              Every color above is a real region of the brain. Hover the idea — not the pixels.
+            </p>
+            <ul className="lobe-legend-list">
+              {LOBE_INFO.map((lobe, i) => (
+                <li
+                  key={lobe.id}
+                  className="lobe-legend-row"
+                  style={{ animationDelay: `${i * 90}ms` }}
+                >
+                  <span className="lobe-dot" style={{ background: lobe.color }} aria-hidden="true" />
+                  <span>
+                    <strong className="lobe-name">{lobe.name}</strong>
+                    <span className="lobe-blurb"> — {lobe.blurb}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </section>
 
       {/* ── Features ── */}
