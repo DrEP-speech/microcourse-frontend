@@ -70,9 +70,15 @@ export default function SiteNav() {
             </Link>
           )}
           {authed && role === "professional" && (
-            <Link className={`badge${pathname?.startsWith("/professional") ? " active" : ""}`} href="/professional"
-              aria-current={pathname?.startsWith("/professional") ? "page" : undefined}>
+            <Link className={`badge${pathname === "/professional" ? " active" : ""}`} href="/professional"
+              aria-current={pathname === "/professional" ? "page" : undefined}>
               Clients
+            </Link>
+          )}
+          {authed && role === "professional" && (
+            <Link className={`badge${pathname?.startsWith("/professional/ceu") ? " active" : ""}`} href="/professional/ceu"
+              aria-current={pathname?.startsWith("/professional/ceu") ? "page" : undefined}>
+              CEU courses
             </Link>
           )}
         </div>

@@ -88,6 +88,13 @@ export default function DashboardPage() {
             <a className="btn primary" href="/professional">Go to clients</a>
           </div>
         )}
+        {role === "professional" && (
+          <div className="card glow-amber" style={{ marginTop: 16 }}>
+            <h2 className="h2 glow-text" style={{ marginBottom: 8 }}>CEU courses</h2>
+            <p className="muted" style={{ marginBottom: 12 }}>Earn continuing education credits with micro-courses matched to your discipline.</p>
+            <a className="btn primary" href="/professional/ceu">Go to CEU courses</a>
+          </div>
+        )}
 
         <div className="row" style={{ marginTop: 8 }}>
           <a className="btn primary" href="/courses">Browse courses</a>
