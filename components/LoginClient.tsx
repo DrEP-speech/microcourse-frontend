@@ -59,7 +59,7 @@ export default function LoginClient() {
   }
 
   return (
-    <section className="card" style={{ maxWidth: 420, margin: "0 auto" }}>
+    <section className="card" style={{ maxWidth: 420 }}>
       <form onSubmit={onSubmit} className="formRow">
         <label className="stack">
           <span className="muted">Email</span>
