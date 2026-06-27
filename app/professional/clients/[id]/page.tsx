@@ -74,6 +74,7 @@ export default function ClientHistoryPage() {
         <p className="hero-sub">{client?.discipline} · {history.length} check-in{history.length === 1 ? "" : "s"} recorded</p>
         <div className="row" style={{ justifyContent: "center", marginTop: "var(--space-4)" }}>
           <Link className="btn primary" href={`/professional/clients/${id}/boards`}>Choice boards →</Link>
+          <Link className="btn secondary" href={`/professional/clients/${id}/breaks`}>Movement breaks →</Link>
         </div>
       </section>
 

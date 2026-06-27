@@ -63,6 +63,12 @@ export default function SiteNav() {
               Choice boards
             </Link>
           )}
+          {authed && role === "caregiver" && (
+            <Link className={`badge${pathname?.startsWith("/caregiver/breaks") ? " active" : ""}`} href="/caregiver/breaks"
+              aria-current={pathname?.startsWith("/caregiver/breaks") ? "page" : undefined}>
+              Movement breaks
+            </Link>
+          )}
           {authed && role === "professional" && (
             <Link className={`badge${pathname?.startsWith("/professional") ? " active" : ""}`} href="/professional"
               aria-current={pathname?.startsWith("/professional") ? "page" : undefined}>

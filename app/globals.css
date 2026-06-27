@@ -757,3 +757,79 @@ p { margin: 0; }
   gap: var(--space-3);
   flex-wrap: wrap;
 }
+
+/* ─── Movement breaks (GoNoodle-style) ─── */
+.break-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: var(--space-4);
+}
+@media (max-width: 760px) { .break-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+@media (max-width: 460px) { .break-grid { grid-template-columns: 1fr; } }
+
+.break-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  text-align: center;
+}
+.break-card .break-icon { font-size: 36px; }
+.break-card .break-cat {
+  display: inline-block;
+  align-self: center;
+  text-transform: capitalize;
+}
+
+.break-cat.energizing     { color: var(--glow-orange); }
+.break-cat.calming        { color: var(--zone-blue); }
+.break-cat.proprioceptive { color: var(--glow-teal); }
+.break-cat.vestibular     { color: var(--glow-yellow); }
+.break-cat.focus          { color: var(--zone-green); }
+
+/* Guided timer player */
+.break-player {
+  text-align: center;
+  padding: var(--space-8) var(--space-4);
+}
+.break-timer-ring {
+  width: 200px;
+  height: 200px;
+  margin: 0 auto var(--space-6);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Poppins', sans-serif;
+  font-size: var(--text-3xl);
+  font-weight: 800;
+  background: conic-gradient(var(--glow-teal) calc(var(--pct, 0) * 1%), rgba(255,255,255,0.06) 0);
+  box-shadow: var(--shadow-glow);
+  transition: background 200ms linear;
+}
+.break-timer-ring-inner {
+  width: 172px;
+  height: 172px;
+  border-radius: 50%;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.break-steps {
+  display: grid;
+  gap: var(--space-3);
+  max-width: 480px;
+  margin: 0 auto;
+  text-align: left;
+}
+.break-step {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.02);
+}
+.break-step.current {
+  border-color: var(--glow-teal);
+  background: rgba(45,212,191,0.10);
+  box-shadow: 0 0 18px rgba(45,212,191,0.2);
+}
