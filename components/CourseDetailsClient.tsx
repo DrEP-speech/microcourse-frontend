@@ -17,6 +17,7 @@ type Lesson = {
   id?: string;
   title?: string;
   name?: string;
+  description?: string;
   courseId?: string;
 };
 
@@ -36,6 +37,7 @@ export default function CourseDetailsClient({ courseId }: { courseId: string }) 
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
+  const [openLessonId, setOpenLessonId] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -150,15 +152,38 @@ export default function CourseDetailsClient({ courseId }: { courseId: string }) 
           ) : (
             <ul style={{ marginTop: 10, listStyle: "none", padding: 0, display: "grid", gap: 8 }}>
               {lessons.map((l) => {
-                const lessonId = l._id || l.id;
+                const lessonId = l._id || l.id || "";
                 const quiz = quizForLesson(lessonId);
+                const isOpen = openLessonId === lessonId;
                 return (
-                  <li key={lessonId || Math.random()} className="spread" style={{ border: "1px solid var(--border)", borderRadius: 10, padding: "10px 14px" }}>
-                    <span>{l.title || l.name || "(untitled lesson)"}</span>
-                    {quiz && (
-                      <Link href={`/quiz/${quiz._id || quiz.id}`} className="link" style={{ fontSize: 14 }}>
-                        Take Quiz →
-                      </Link>
+                  <li key={lessonId || Math.random()} style={{ border: "1px solid var(--border)", borderRadius: 10, padding: "10px 14px" }}>
+                    <div
+                      className="spread"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => setOpenLessonId(isOpen ? null : lessonId)}
+                    >
+                      <span style={{ fontWeight: isOpen ? 700 : 400 }}>{l.title || l.name || "(untitled lesson)"}</span>
+                      <span style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                        {quiz && (
+                          <Link
+                            href={`/quiz/${quiz._id || quiz.id}`}
+                            className="link"
+                            style={{ fontSize: 14 }}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            Take Quiz →
+                          </Link>
+                        )}
+                        <span className="muted" style={{ fontSize: 13 }}>{isOpen ? "Hide answer ▲" : "Show answer ▼"}</span>
+                      </span>
+                    </div>
+                    {isOpen && (
+                      <div
+                        className="muted"
+                        style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid var(--border)", whiteSpace: "pre-wrap", lineHeight: 1.6 }}
+                      >
+                        {l.description || "No detailed answer available yet for this lesson."}
+                      </div>
                     )}
                   </li>
                 );
