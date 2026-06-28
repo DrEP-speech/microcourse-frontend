@@ -5,8 +5,9 @@ import NextDynamic from "next/dynamic";
 
 export const dynamic = "force-dynamic";
 
-/* Load particle canvas client-only (no SSR) */
-const ParticleField = NextDynamic(() => import("@/components/ParticleField"), { ssr: false });
+/* Load the brain diagram client-only (no SSR) — it's a static SVG so
+   this is mostly to keep hydration simple, not for canvas reasons. */
+const BrainDiagram = NextDynamic(() => import("@/components/BrainDiagram"), { ssr: false });
 
 const features = [
   {
@@ -64,7 +65,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        <ParticleField count={3600} shape="brain" />
+        <BrainDiagram />
       </section>
 
       {/* ── Features ── */}
