@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Shape = "circle" | "triangle" | "diamond" | "square";
 type ClusterShape = "sphere" | "brain";
@@ -48,12 +48,12 @@ function pickColor(lobeId: string) {
   return Math.random() < 0.82 ? info.color : "rgba(255,255,255,0.55)";
 }
 
-function drawShape(ctx: CanvasRenderingContext2D, p: Particle) {
-  ctx.globalAlpha = p.alpha;
+function drawShape(ctx: CanvasRenderingContext2D, p: Particle, alpha: number, size: number) {
+  ctx.globalAlpha = alpha;
   ctx.fillStyle = p.color;
   ctx.beginPath();
 
-  const s = p.size;
+  const s = size;
   switch (p.shape) {
     case "circle":
       ctx.arc(p.x, p.y, s, 0, Math.PI * 2);
@@ -181,6 +181,8 @@ function brainOffset(i: number, total: number) {
   return { dx: off.dx, dy: off.dy, side: 1, lobeId: off.lobeId };
 }
 
+interface HoverInfo { lobeId: string; x: number; y: number; }
+
 export default function ParticleField({
   count = 700,
   shape = "sphere",
@@ -189,6 +191,7 @@ export default function ParticleField({
   shape?: ClusterShape;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [hover, setHover] = useState<HoverInfo | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -201,6 +204,7 @@ export default function ParticleField({
 
     let raf = 0;
     let t = 0;
+    let hoveredLobe: string | null = null;
 
     const resize = () => {
       const dpr = window.devicePixelRatio || 1;
@@ -214,9 +218,6 @@ export default function ParticleField({
     const W = () => canvas.offsetWidth;
     const H = () => canvas.offsetHeight;
 
-    /* Brain runs a smaller base radius than a plain sphere so the
-       hemisphere-split animation has room to breathe without clipping
-       the canvas at full separation. */
     const r = Math.min(W(), H()) * (isBrain ? 0.34 : 0.38);
 
     const particles: Particle[] = Array.from({ length: count }, (_, i) => {
@@ -241,25 +242,70 @@ export default function ParticleField({
       };
     });
 
-    /* Hemispheres drift apart and back together on a slow breathing
-       cycle — side === 0 (cerebellum/stem) stays anchored on the
-       midline throughout. */
-    const SPLIT_MAX = r * 0.32;
-    const SPLIT_SPEED = 4.4;
+    /* Hover lights up the lobe under the cursor instead of the brain
+       breathing on its own — particles in the hovered lobe brighten and
+       grow, everything else dims so the active region pops. */
+    const HOVER_RADIUS_SQ = isBrain ? (r * 0.95) ** 2 : Infinity;
+
+    const nearestLobe = (mx: number, my: number): string | null => {
+      let best: Particle | null = null;
+      let bestD = Infinity;
+      for (const p of particles) {
+        const dx = p.x - mx;
+        const dy = p.y - my;
+        const d = dx * dx + dy * dy;
+        if (d < bestD) { bestD = d; best = p; }
+      }
+      return best && bestD < HOVER_RADIUS_SQ ? best.lobeId : null;
+    };
+
+    const drawFrame = () => {
+      ctx.clearRect(0, 0, W(), H());
+      particles.forEach((p) => {
+        let alpha = p.alpha;
+        let size = p.size;
+        if (hoveredLobe) {
+          if (p.lobeId === hoveredLobe) {
+            alpha = Math.min(1, p.alpha + 0.5);
+            size = p.size * 1.7;
+          } else {
+            alpha = p.alpha * 0.18;
+          }
+        }
+        drawShape(ctx, p, alpha, size);
+      });
+    };
+
+    const handleMove = (e: MouseEvent) => {
+      if (!isBrain) return;
+      const rect = canvas.getBoundingClientRect();
+      const mx = (e.clientX - rect.left);
+      const my = (e.clientY - rect.top);
+      const lobeId = nearestLobe(mx, my);
+      hoveredLobe = lobeId;
+      setHover(lobeId ? { lobeId, x: mx, y: my } : null);
+      if (prefersReduced) drawFrame();
+    };
+    const handleLeave = () => {
+      hoveredLobe = null;
+      setHover(null);
+      if (prefersReduced) drawFrame();
+    };
+    if (isBrain) {
+      canvas.addEventListener("mousemove", handleMove);
+      canvas.addEventListener("mouseleave", handleLeave);
+    }
 
     const tick = () => {
-      ctx.clearRect(0, 0, W(), H());
       t += 0.004;
-
       const cx = W() / 2;
       const cy = H() / 2;
-      const splitExtra = isBrain ? SPLIT_MAX * 0.5 * (1 + Math.sin(t * SPLIT_SPEED)) : 0;
 
       particles.forEach((p, i) => {
-        p.targetX = cx + p.baseDX + p.side * splitExtra;
+        p.targetX = cx + p.baseDX;
         p.targetY = cy + p.baseDY;
 
-        /* slow drift toward target with a gentle sine offset */
+        /* gentle ambient drift — no hemisphere split, just a living texture */
         const drift = Math.sin(t + i * 0.1) * 6;
         const dx = (p.targetX + drift) - p.x;
         const dy = (p.targetY + Math.cos(t * 0.7 + i * 0.07) * 4) - p.y;
@@ -269,19 +315,19 @@ export default function ParticleField({
         p.vy *= 0.92;
         p.x += p.vx;
         p.y += p.vy;
-        drawShape(ctx, p);
       });
 
+      drawFrame();
       raf = requestAnimationFrame(tick);
     };
 
     if (prefersReduced) {
-      /* static snapshot only — settle at rest position, no split */
+      /* static snapshot — settle at rest position, hover still works */
       particles.forEach(p => {
         p.x = W() / 2 + p.baseDX;
         p.y = H() / 2 + p.baseDY;
-        drawShape(ctx, p);
       });
+      drawFrame();
     } else {
       raf = requestAnimationFrame(tick);
     }
@@ -289,12 +335,27 @@ export default function ParticleField({
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
+      if (isBrain) {
+        canvas.removeEventListener("mousemove", handleMove);
+        canvas.removeEventListener("mouseleave", handleLeave);
+      }
     };
   }, [count, shape]);
+
+  const info = hover ? LOBE_MAP[hover.lobeId] : null;
 
   return (
     <div className="hero-canvas-wrap" aria-hidden="true">
       <canvas ref={canvasRef} style={{ width: "100%", height: "100%", display: "block" }} />
+      {info && hover && (
+        <div
+          className="brain-hover-tip"
+          style={{ left: hover.x, top: hover.y, borderLeftColor: info.color }}
+        >
+          <strong>{info.name}</strong>
+          <span>{info.blurb}</span>
+        </div>
+      )}
     </div>
   );
 }

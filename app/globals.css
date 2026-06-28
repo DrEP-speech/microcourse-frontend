@@ -434,6 +434,38 @@ body > main,
   height: 100%;
 }
 
+/* Hover callout — lights up over the lobe under the cursor, like a
+   quick-fact label on an anatomy chart. */
+.brain-hover-tip {
+  position: absolute;
+  z-index: 2;
+  transform: translate(16px, -50%);
+  max-width: 220px;
+  padding: 10px 14px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-2);
+  border-left: 3px solid;
+  border-radius: var(--radius-md);
+  pointer-events: none;
+  font-size: var(--text-body-sm);
+  line-height: 1.45;
+  letter-spacing: 0.02em;
+  color: var(--color-ash);
+  opacity: 0;
+  animation: lobe-tip-in 0.18s ease-out forwards;
+}
+.brain-hover-tip strong {
+  display: block;
+  color: var(--color-bone);
+  font-weight: var(--weight-semibold);
+  margin-bottom: 3px;
+}
+
+@keyframes lobe-tip-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
 /* ─── Lobe legend / "first micro-lesson" infographic ─── */
 .lobe-legend {
   margin-top: var(--space-3);
