@@ -64,7 +64,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        <ParticleField count={2200} shape="brain" />
+        <ParticleField count={3600} shape="brain" />
       </section>
 
       {/* ── Features ── */}

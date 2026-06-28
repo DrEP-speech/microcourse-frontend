@@ -128,6 +128,71 @@ function buildEllipsePath(cx: number, cy: number, rx: number, ry: number, rotDeg
   return path;
 }
 
+/* ── Pure-math inclusion tests ─────────────────────────────────────────
+   Rejection sampling originally went through ctx.isPointInPath against
+   hand-drawn bezier Path2D objects, but that came back almost always
+   false (self-overlapping curves + winding-rule edge cases), so nearly
+   every particle fell through to its single fallback point — which is
+   exactly the "everything collapsed into one dot per lobe" look in the
+   screenshot. Doing the inclusion test in plain JS, independent of any
+   canvas state, removes that failure mode entirely. */
+function pointInEllipse(cx: number, cy: number, rx: number, ry: number, rotDeg: number, x: number, y: number) {
+  const rad = (rotDeg * Math.PI) / 180;
+  const dx = x - cx, dy = y - cy;
+  const cos = Math.cos(-rad), sin = Math.sin(-rad);
+  const lx = dx * cos - dy * sin;
+  const ly = dx * sin + dy * cos;
+  return (lx * lx) / (rx * rx) + (ly * ly) / (ry * ry) <= 1;
+}
+
+/* Flattens our "M C C ... Z" path strings into a polygon (cubic beziers
+   sampled at a fixed resolution), once, at module load. */
+function flattenPathToPolygon(d: string, samplesPerCurve = 16): { x: number; y: number }[] {
+  const tokens = d.match(/[MCLZ]|-?\d*\.?\d+/g) || [];
+  const pts: { x: number; y: number }[] = [];
+  let cur = { x: 0, y: 0 };
+  let i = 0;
+  const num = () => parseFloat(tokens[i++]);
+  while (i < tokens.length) {
+    const cmd = tokens[i];
+    if (cmd === "M") {
+      i++;
+      cur = { x: num(), y: num() };
+      pts.push({ ...cur });
+    } else if (cmd === "L") {
+      i++;
+      cur = { x: num(), y: num() };
+      pts.push({ ...cur });
+    } else if (cmd === "C") {
+      i++;
+      const x1 = num(), y1 = num(), x2 = num(), y2 = num(), x = num(), y = num();
+      for (let s = 1; s <= samplesPerCurve; s++) {
+        const t = s / samplesPerCurve;
+        const mt = 1 - t;
+        pts.push({
+          x: mt * mt * mt * cur.x + 3 * mt * mt * t * x1 + 3 * mt * t * t * x2 + t * t * t * x,
+          y: mt * mt * mt * cur.y + 3 * mt * mt * t * y1 + 3 * mt * t * t * y2 + t * t * t * y,
+        });
+      }
+      cur = { x, y };
+    } else {
+      i++; // "Z" or stray token
+    }
+  }
+  return pts;
+}
+
+function pointInPolygon(poly: { x: number; y: number }[], x: number, y: number) {
+  let inside = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const xi = poly[i].x, yi = poly[i].y, xj = poly[j].x, yj = poly[j].y;
+    if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) {
+      inside = !inside;
+    }
+  }
+  return inside;
+}
+
 interface CortexLobe {
   id: string;
   pct: number;
@@ -135,31 +200,48 @@ interface CortexLobe {
 }
 
 const CORTEX_LOBES: CortexLobe[] = [
-  { id: "frontal",   pct: 0.25, cx: 185, cy: 165, rx: 125, ry: 115 },
-  { id: "parietal",  pct: 0.28, cx: 345, cy: 115, rx: 135, ry: 85, rot: -5 },
-  { id: "temporal",  pct: 0.16, cx: 255, cy: 325, rx: 145, ry: 62, rot: -14 },
-  { id: "occipital", pct: 0.13, cx: 505, cy: 225, rx: 95,  ry: 85 },
+  { id: "frontal",   pct: 0.29, cx: 185, cy: 165, rx: 125, ry: 115 },
+  { id: "parietal",  pct: 0.33, cx: 345, cy: 115, rx: 135, ry: 85, rot: -5 },
+  { id: "temporal",  pct: 0.19, cx: 255, cy: 325, rx: 145, ry: 62, rot: -14 },
+  { id: "occipital", pct: 0.19, cx: 505, cy: 225, rx: 95,  ry: 85 },
 ];
 const CEREBELLUM = { cx: 478, cy: 358, rx: 62, ry: 46, rot: 8, pct: 0.13 };
 const BRAINSTEM_PCT = 0.05;
 
-/* Rejection-sample a random point inside `path` (optionally also
-   requiring it sit inside `clip`), falling back to the ellipse center
-   if we run out of tries — keeps mount-time cost bounded. */
-function sampleInPath(
-  ctx: CanvasRenderingContext2D,
-  path: Path2D,
+/* Rejection-sample a random point inside an ellipse (optionally also
+   requiring it sit inside the outline polygon), falling back to the
+   ellipse center if we somehow run out of tries. */
+function sampleInEllipse(
+  lobe: { cx: number; cy: number; rx: number; ry: number; rot?: number },
+  outlinePoly?: { x: number; y: number }[],
+  maxTries = 60
+) {
+  const bbox = { x: lobe.cx - lobe.rx, y: lobe.cy - lobe.ry, w: lobe.rx * 2, h: lobe.ry * 2 };
+  for (let t = 0; t < maxTries; t++) {
+    const x = bbox.x + Math.random() * bbox.w;
+    const y = bbox.y + Math.random() * bbox.h;
+    if (
+      pointInEllipse(lobe.cx, lobe.cy, lobe.rx, lobe.ry, lobe.rot ?? 0, x, y) &&
+      (!outlinePoly || pointInPolygon(outlinePoly, x, y))
+    ) {
+      return { x, y };
+    }
+  }
+  return { x: lobe.cx, y: lobe.cy };
+}
+
+/* Rejection-sample a random point inside an arbitrary flattened polygon
+   (used for the brainstem, which isn't a clean ellipse). */
+function sampleInPolygon(
+  poly: { x: number; y: number }[],
   bbox: { x: number; y: number; w: number; h: number },
   fallback: { x: number; y: number },
-  clip?: Path2D,
-  maxTries = 30
+  maxTries = 60
 ) {
   for (let t = 0; t < maxTries; t++) {
     const x = bbox.x + Math.random() * bbox.w;
     const y = bbox.y + Math.random() * bbox.h;
-    if (ctx.isPointInPath(path, x, y) && (!clip || ctx.isPointInPath(clip, x, y))) {
-      return { x, y };
-    }
+    if (pointInPolygon(poly, x, y)) return { x, y };
   }
   return fallback;
 }
@@ -193,6 +275,7 @@ export default function ParticleField({
       const dpr = window.devicePixelRatio || 1;
       canvas.width  = canvas.offsetWidth  * dpr;
       canvas.height = canvas.offsetHeight * dpr;
+      ctx.setTransform(1, 0, 0, 1, 0, 0); // avoid compounding scale on repeat resizes
       ctx.scale(dpr, dpr);
     };
     resize();
@@ -208,19 +291,23 @@ export default function ParticleField({
     const offY = isBrain ? (H() - BOX_H * fitScale) / 2 : 0;
     const toCanvas = (x: number, y: number) => ({ x: offX + x * fitScale, y: offY + y * fitScale });
 
+    /* Path2D objects are kept only for the decorative outline/stroke
+       render (drawTexture) — actual particle placement now goes through
+       the pure-math polygon/ellipse tests above, which can't silently
+       fail the way ctx.isPointInPath did. */
     const outlinePath = isBrain ? new Path2D(BRAIN_OUTLINE_D) : null;
     const brainstemPath = isBrain ? new Path2D(BRAINSTEM_D) : null;
     const cerebellumPath = isBrain
       ? buildEllipsePath(CEREBELLUM.cx, CEREBELLUM.cy, CEREBELLUM.rx, CEREBELLUM.ry, CEREBELLUM.rot)
       : null;
-    const lobePaths = isBrain
-      ? CORTEX_LOBES.map((l) => ({ id: l.id, path: buildEllipsePath(l.cx, l.cy, l.rx, l.ry, l.rot) }))
-      : [];
     const sulciPaths = isBrain ? SULCI_D.map((d) => new Path2D(d)) : [];
+
+    const outlinePoly = isBrain ? flattenPathToPolygon(BRAIN_OUTLINE_D) : [];
+    const brainstemPoly = isBrain ? flattenPathToPolygon(BRAINSTEM_D) : [];
 
     const particles: Particle[] = [];
 
-    if (isBrain && outlinePath) {
+    if (isBrain) {
       const total = count;
       const brainstemCount = Math.round(total * BRAINSTEM_PCT);
       const cerebellumCount = Math.round(total * CEREBELLUM.pct);
@@ -235,10 +322,10 @@ export default function ParticleField({
           y: Math.random() * H(),
           vx: (Math.random() - 0.5) * 0.3,
           vy: (Math.random() - 0.5) * 0.3,
-          size: Math.random() * 2.1 + 0.9,
+          size: Math.random() * 2.4 + 1.4,
           color: pickColor(lobeId),
-          shape: Math.random() < 0.62 ? "circle" : SHAPES[Math.floor(Math.random() * SHAPES.length)],
-          alpha: Math.random() * 0.5 + 0.35,
+          shape: Math.random() < 0.78 ? "circle" : SHAPES[Math.floor(Math.random() * SHAPES.length)],
+          alpha: Math.random() * 0.4 + 0.5,
           lobeId,
           baseDX,
           baseDY,
@@ -248,19 +335,15 @@ export default function ParticleField({
       };
 
       /* Brainstem — narrow trailing shape beneath the cerebellum. */
-      const stemBBox = { x: 410, y: 375, w: 50, h: 78 };
+      const stemBBox = { x: 408, y: 374, w: 54, h: 80 };
       for (let i = 0; i < brainstemCount; i++) {
-        const pt = sampleInPath(ctx, brainstemPath!, stemBBox, { x: 438, y: 410 });
+        const pt = sampleInPolygon(brainstemPoly, stemBBox, { x: 438, y: 410 });
         pushParticle(pt.x, pt.y, "brainstem");
       }
 
       /* Cerebellum — ridged mass tucked under the occipital pole. */
-      const cbBBox = {
-        x: CEREBELLUM.cx - CEREBELLUM.rx, y: CEREBELLUM.cy - CEREBELLUM.ry,
-        w: CEREBELLUM.rx * 2, h: CEREBELLUM.ry * 2,
-      };
       for (let i = 0; i < cerebellumCount; i++) {
-        const pt = sampleInPath(ctx, cerebellumPath!, cbBBox, { x: CEREBELLUM.cx, y: CEREBELLUM.cy });
+        const pt = sampleInEllipse(CEREBELLUM);
         pushParticle(pt.x, pt.y, "cerebellum");
       }
 
@@ -271,10 +354,8 @@ export default function ParticleField({
         const isLast = idx === CORTEX_LOBES.length - 1;
         const n = isLast ? remaining : Math.round(lobe.pct * cortexCount);
         remaining -= n;
-        const bbox = { x: lobe.cx - lobe.rx, y: lobe.cy - lobe.ry, w: lobe.rx * 2, h: lobe.ry * 2 };
-        const lp = lobePaths.find((l) => l.id === lobe.id)!.path;
         for (let i = 0; i < n; i++) {
-          const pt = sampleInPath(ctx, lp, bbox, { x: lobe.cx, y: lobe.cy }, outlinePath);
+          const pt = sampleInEllipse(lobe, outlinePoly);
           pushParticle(pt.x, pt.y, lobe.id);
         }
       });
