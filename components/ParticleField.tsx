@@ -322,8 +322,7 @@ export default function ParticleField({
     if (isBrain) {
       const total = count;
       const brainstemCount = Math.round(total * BRAINSTEM_PCT);
-      const cerebellumCount = Math.round(total * CEREBELLUM.pct);
-      const cortexCount = total - brainstemCount - cerebellumCount;
+      const bodyCount = total - brainstemCount;
 
       const pushParticle = (px: number, py: number, lobeId: string) => {
         const c = toCanvas(px, py);
@@ -353,24 +352,45 @@ export default function ParticleField({
         pushParticle(pt.x, pt.y, "brainstem");
       }
 
-      /* Cerebellum — ridged mass tucked under the occipital pole. */
-      for (let i = 0; i < cerebellumCount; i++) {
-        const pt = sampleInEllipse(CEREBELLUM);
-        pushParticle(pt.x, pt.y, "cerebellum");
-      }
-
-      /* Cortex lobes — each ellipse ANDed against the true outline so
-         nothing escapes the silhouette's edge. */
-      let remaining = cortexCount;
-      CORTEX_LOBES.forEach((lobe, idx) => {
-        const isLast = idx === CORTEX_LOBES.length - 1;
-        const n = isLast ? remaining : Math.round(lobe.pct * cortexCount);
-        remaining -= n;
-        for (let i = 0; i < n; i++) {
-          const pt = sampleInEllipse(lobe, outlinePoly);
-          pushParticle(pt.x, pt.y, lobe.id);
-        }
+      /* Cortex + cerebellum — sampled UNIFORMLY across the single brain
+         outline (one continuous polygon), then colored by nearest anchor.
+         Sampling separate per-lobe ellipses (the old approach) left dead
+         space wherever two ellipses didn't fully overlap, and an
+         unconstrained cerebellum ellipse that spilled outside the
+         silhouette entirely — both read as visible gaps/floating
+         clusters. Sampling the whole outline first guarantees full,
+         gapless coverage; color "zones" fall out naturally as a
+         Voronoi-like split around each anchor, so adjacent regions blend
+         at a soft, organic boundary instead of a hard edge. */
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      outlinePoly.forEach((p) => {
+        if (p.x < minX) minX = p.x;
+        if (p.x > maxX) maxX = p.x;
+        if (p.y < minY) minY = p.y;
+        if (p.y > maxY) maxY = p.y;
       });
+      const outlineBBox = { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+      const outlineFallback = { x: (minX + maxX) / 2, y: (minY + maxY) / 2 };
+
+      const anchors = [
+        ...CORTEX_LOBES.map((l) => ({ id: l.id, cx: l.cx, cy: l.cy })),
+        { id: "cerebellum", cx: CEREBELLUM.cx, cy: CEREBELLUM.cy },
+      ];
+      const nearestAnchorId = (x: number, y: number) => {
+        let best = anchors[0].id;
+        let bestD = Infinity;
+        for (const a of anchors) {
+          const dx = x - a.cx, dy = y - a.cy;
+          const d = dx * dx + dy * dy;
+          if (d < bestD) { bestD = d; best = a.id; }
+        }
+        return best;
+      };
+
+      for (let i = 0; i < bodyCount; i++) {
+        const pt = sampleInPolygon(outlinePoly, outlineBBox, outlineFallback);
+        pushParticle(pt.x, pt.y, nearestAnchorId(pt.x, pt.y));
+      }
       /* Sparse ambient drift outside the silhouette — small, dim,
          scattered across the full canvas — so density "varies, thick in
          the center, sparse at the edges" instead of stopping hard at the
@@ -483,22 +503,29 @@ export default function ParticleField({
     }
 
     const tick = () => {
-      t += 0.004;
+      t += 0.012;
       const cx = W() / 2;
       const cy = H() / 2;
 
-      particles.forEach((p, i) => {
-        p.targetX = cx + p.baseDX;
-        p.targetY = cy + p.baseDY;
+      /* Slow overall "breathing" pulse on top of per-particle drift, so
+         the whole constellation visibly swells/contracts rather than
+         relying on individual jitter alone — the previous 2-3px sway was
+         too subtle to register as "movement" at a glance. */
+      const breathe = 1 + Math.sin(t * 0.5) * 0.025;
 
-        /* gentle ambient drift — just a living texture, no shape motion */
-        const drift = Math.sin(t + i * 0.1) * 3;
+      particles.forEach((p, i) => {
+        p.targetX = cx + p.baseDX * breathe;
+        p.targetY = cy + p.baseDY * breathe;
+
+        /* ambient drift — bigger amplitude + faster cycle so it's
+           clearly alive, not just a subtle shimmer */
+        const drift = Math.sin(t + i * 0.1) * 8;
         const dx = (p.targetX + drift) - p.x;
-        const dy = (p.targetY + Math.cos(t * 0.7 + i * 0.07) * 2) - p.y;
-        p.vx += dx * 0.012;
-        p.vy += dy * 0.012;
-        p.vx *= 0.92;
-        p.vy *= 0.92;
+        const dy = (p.targetY + Math.cos(t * 0.7 + i * 0.07) * 6) - p.y;
+        p.vx += dx * 0.02;
+        p.vy += dy * 0.02;
+        p.vx *= 0.9;
+        p.vy *= 0.9;
         p.x += p.vx;
         p.y += p.vy;
       });
