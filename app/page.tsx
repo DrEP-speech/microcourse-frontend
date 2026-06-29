@@ -5,9 +5,11 @@ import NextDynamic from "next/dynamic";
 
 export const dynamic = "force-dynamic";
 
-/* Load the brain diagram client-only (no SSR) — it's a static SVG so
-   this is mostly to keep hydration simple, not for canvas reasons. */
-const BrainDiagram = NextDynamic(() => import("@/components/BrainDiagram"), { ssr: false });
+/* Load the particle-constellation brain client-only — canvas needs a
+   real DOM/devicePixelRatio, so this can't render during SSR. Matches
+   the Dala reference: thousands of tiny triangles/circles/diamonds in
+   the brand palette clustering into a brain silhouette on void black. */
+const ParticleField = NextDynamic(() => import("@/components/ParticleField"), { ssr: false });
 
 const features = [
   {
@@ -65,7 +67,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        <BrainDiagram />
+        <ParticleField shape="brain" count={2200} />
       </section>
 
       {/* ── Features ── */}

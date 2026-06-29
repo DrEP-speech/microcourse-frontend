@@ -42,7 +42,19 @@ function pickColor(lobeId: string) {
   if (!info) return "rgba(255,255,255,0.6)";
   /* Mostly the lobe's own color, with an occasional bone-white sparkle
      to keep some depth/shimmer in the field. */
-  return Math.random() < 0.82 ? info.color : "rgba(255,255,255,0.55)";
+  return Math.random() < 0.78 ? info.color : "rgba(255,255,255,0.6)";
+}
+
+/* Reference constellation is triangle-dominant with circles/diamonds as
+   secondary texture and squares as a rare accent — matches the Dala
+   "thousands of tiny geometric shapes" brief more closely than an even
+   split across all four shapes. */
+function pickShape(): Shape {
+  const r = Math.random();
+  if (r < 0.55) return "triangle";
+  if (r < 0.8) return "circle";
+  if (r < 0.93) return "diamond";
+  return "square";
 }
 
 function drawShape(ctx: CanvasRenderingContext2D, p: Particle, alpha: number, size: number) {
@@ -322,9 +334,9 @@ export default function ParticleField({
           y: Math.random() * H(),
           vx: (Math.random() - 0.5) * 0.3,
           vy: (Math.random() - 0.5) * 0.3,
-          size: Math.random() * 2.4 + 1.4,
+          size: Math.random() * 2.6 + 1.5,
           color: pickColor(lobeId),
-          shape: Math.random() < 0.78 ? "circle" : SHAPES[Math.floor(Math.random() * SHAPES.length)],
+          shape: pickShape(),
           alpha: Math.random() * 0.4 + 0.5,
           lobeId,
           baseDX,
@@ -359,6 +371,33 @@ export default function ParticleField({
           pushParticle(pt.x, pt.y, lobe.id);
         }
       });
+      /* Sparse ambient drift outside the silhouette — small, dim,
+         scattered across the full canvas — so density "varies, thick in
+         the center, sparse at the edges" instead of stopping hard at the
+         brain's contour. Not part of any lobe; never brightens on
+         hover. */
+      const ambientCount = Math.round(total * 0.16);
+      for (let i = 0; i < ambientCount; i++) {
+        const ax = Math.random() * W();
+        const ay = Math.random() * H();
+        particles.push({
+          x: ax,
+          y: ay,
+          vx: (Math.random() - 0.5) * 0.15,
+          vy: (Math.random() - 0.5) * 0.15,
+          size: Math.random() * 1.6 + 0.8,
+          color: Math.random() < 0.5 ? "rgba(255,255,255,0.4)" : pickColor(
+            CORTEX_LOBES[Math.floor(Math.random() * CORTEX_LOBES.length)].id
+          ),
+          shape: pickShape(),
+          alpha: Math.random() * 0.18 + 0.05,
+          lobeId: "__ambient",
+          baseDX: ax - W() / 2,
+          baseDY: ay - H() / 2,
+          targetX: ax,
+          targetY: ay,
+        });
+      }
     } else {
       for (let i = 0; i < count; i++) {
         const off = sphereOffset(i, count, r);
@@ -369,7 +408,7 @@ export default function ParticleField({
           vy: (Math.random() - 0.5) * 0.3,
           size: Math.random() * 2.5 + 1,
           color: pickColor(off.lobeId),
-          shape: SHAPES[Math.floor(Math.random() * SHAPES.length)],
+          shape: pickShape(),
           alpha: Math.random() * 0.6 + 0.3,
           lobeId: off.lobeId,
           baseDX: off.dx,
@@ -389,6 +428,7 @@ export default function ParticleField({
       let best: Particle | null = null;
       let bestD = Infinity;
       for (const p of particles) {
+        if (p.lobeId === "__ambient") continue;
         const dx = p.x - mx;
         const dy = p.y - my;
         const d = dx * dx + dy * dy;
@@ -397,21 +437,12 @@ export default function ParticleField({
       return best && bestD < HOVER_RADIUS_SQ ? best.lobeId : null;
     };
 
-    const drawTexture = () => {
-      if (!isBrain || !outlinePath || !cerebellumPath || !brainstemPath) return;
-      ctx.save();
-      ctx.translate(offX, offY);
-      ctx.scale(fitScale, fitScale);
-      ctx.lineWidth = 1.4 / fitScale;
-      ctx.strokeStyle = "rgba(255,255,255,0.10)";
-      ctx.stroke(outlinePath);
-      ctx.stroke(cerebellumPath);
-      ctx.stroke(brainstemPath);
-      ctx.lineWidth = 2.2 / fitScale;
-      ctx.strokeStyle = "rgba(0,0,0,0.30)";
-      sulciPaths.forEach((p) => ctx.stroke(p));
-      ctx.restore();
-    };
+    /* Reference constellation is pure particle mass — no vector outline
+       or sulci strokes drawn over it, the brain silhouette is implied
+       entirely by where particles cluster vs. thin out. Kept as a no-op
+       (rather than deleted) so the Path2D setup above stays available if
+       a future pass wants a faint outline back. */
+    const drawTexture = () => {};
 
     const drawFrame = () => {
       ctx.clearRect(0, 0, W(), H());
