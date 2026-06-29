@@ -44,8 +44,10 @@
   --text-body:       15px;
   --text-subhead:    18px;
   --text-heading-sm: 24px;
+  --text-heading-md: 27px;
   --text-heading:    36px;
-  --text-heading-lg: 48px;
+  --text-heading-lg: 42px;
+  --text-heading-xl: 48px;
   --text-display:    78px;
   --text-hero:       clamp(52px, 9vw, 113px);
 
