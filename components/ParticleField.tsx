@@ -297,8 +297,15 @@ export default function ParticleField({
     const H = () => canvas.offsetHeight;
     const r = Math.min(W(), H()) * 0.38;
 
-    /* ── Brain silhouette setup (mount-time only) ── */
-    const fitScale = isBrain ? (Math.min(W(), H()) / Math.max(BOX_W, BOX_H)) * 1.55 : 1;
+    /* ── Brain silhouette setup (mount-time only) ──
+       fitScale used to inflate the 600×460 box by 1.55x, which is bigger
+       than the canvas on every side — the curvy outline edge landed
+       outside the visible frame entirely, so all you could see was the
+       dense, unclipped middle of the silhouette, which reads as a hard-
+       edged rectangle/square instead of a brain. Scaling to 1:1 (with a
+       small margin) keeps the whole organic boundary — every lobe bump,
+       the temporal curve, the occipital taper — inside the frame. */
+    const fitScale = isBrain ? (Math.min(W(), H()) / Math.max(BOX_W, BOX_H)) * 0.92 : 1;
     const offX = isBrain ? (W() - BOX_W * fitScale) / 2 : 0;
     const offY = isBrain ? (H() - BOX_H * fitScale) / 2 : 0;
     const toCanvas = (x: number, y: number) => ({ x: offX + x * fitScale, y: offY + y * fitScale });
