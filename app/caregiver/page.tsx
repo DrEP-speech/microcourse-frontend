@@ -125,7 +125,7 @@ export default function CaregiverPortal() {
       {clients.length === 0 && !error && (
         <div className="card">
           <p className="muted">
-            No clients are linked to your account yet. Ask your child's provider to link your email to
+            No clients are linked to your account yet. Ask your child&apos;s provider to link your email to
             their client record to start checking in.
           </p>
         </div>
