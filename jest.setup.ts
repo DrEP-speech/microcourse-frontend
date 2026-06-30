@@ -1,11 +1,20 @@
 import "@testing-library/jest-dom";
-import React from "react";
 
-jest.mock("next/link", () => ({
-  __esModule: true,
-  default: ({ href, children, ...props }: any) =>
-    React.createElement("a", { href, ...props }, children),
-}));
+jest.mock("next/link", () => {
+  const React = require("react");
+  return {
+    __esModule: true,
+    default: ({ href, children, ...props }: any) =>
+      React.createElement(
+        "a",
+        {
+          href: typeof href === "string" ? href : href?.pathname || "#",
+          ...props,
+        },
+        children
+      ),
+  };
+});
 
 jest.mock("next/navigation", () => ({
   __esModule: true,

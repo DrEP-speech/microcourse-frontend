@@ -1,4 +1,4 @@
-import jsPDF from 'jspdf';
+import { jsPDF } from 'jspdf'; // jsPDF 4.x uses named export
 import autoTable from 'jspdf-autotable';
 
 export function exportQuizReviewToPDF(quizId, data) {

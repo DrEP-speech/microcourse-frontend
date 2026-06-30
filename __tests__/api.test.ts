@@ -1,12 +1,13 @@
-import { apiRequest, ApiError } from "../lib/api";
+import { apiFetch, ApiError } from "../lib/api";
 
-// NOTE: This is a unit test for error normalization.
-// We mock fetch so no real network calls happen.
-describe("apiRequest", () => {
+// Unit tests for apiFetch error normalisation.
+// fetch is mocked so no real network calls happen.
+// ApiError shape: { status: number, message: string, details: any }
+describe("apiFetch", () => {
   beforeEach(() => {
     // @ts-expect-error
     global.fetch = jest.fn();
-    process.env.NEXT_PUBLIC_API_BASE_URL = "http://example.com";
+    process.env.NEXT_PUBLIC_API_BASE = "http://example.com";
   });
 
   it("throws ApiError on non-2xx", async () => {
@@ -14,11 +15,13 @@ describe("apiRequest", () => {
     global.fetch.mockResolvedValue({
       ok: false,
       status: 401,
-      text: async () => JSON.stringify({ code: "UNAUTHORIZED", message: "Nope" }),
+      headers: { get: () => "application/json" },
+      json: async () => ({ code: "UNAUTHORIZED", message: "Nope" }),
     });
 
-    await expect(apiRequest("x")).rejects.toBeInstanceOf(ApiError);
-    await expect(apiRequest("x")).rejects.toMatchObject({ status: 401, code: "UNAUTHORIZED" });
+    await expect(apiFetch("x")).rejects.toBeInstanceOf(ApiError);
+    // ApiError picks up message from response body; no .code on the error itself
+    await expect(apiFetch("x")).rejects.toMatchObject({ status: 401, message: "Nope" });
   });
 
   it("returns parsed json on 2xx", async () => {
@@ -26,10 +29,11 @@ describe("apiRequest", () => {
     global.fetch.mockResolvedValue({
       ok: true,
       status: 200,
-      text: async () => JSON.stringify({ ok: true }),
+      headers: { get: () => "application/json" },
+      json: async () => ({ ok: true }),
     });
 
-    const out = await apiRequest<{ ok: boolean }>("x");
+    const out = await apiFetch<{ ok: boolean }>("x");
     expect(out.ok).toBe(true);
   });
 });

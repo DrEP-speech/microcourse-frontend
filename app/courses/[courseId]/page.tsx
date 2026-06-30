@@ -2,10 +2,14 @@ import CourseDetailsClient from "@/components/CourseDetailsClient";
 
 export const dynamic = "force-dynamic";
 
-export default function CourseDetailsPage({ params }: { params: { courseId: string } }) {
+// Next.js 15+: params is a Promise in server components — must be awaited.
+export default async function CourseDetailsPage(props: {
+  params: Promise<{ courseId: string }>;
+}) {
+  const { courseId } = await props.params;
   return (
     <main>
-      <CourseDetailsClient courseId={params.courseId} />
+      <CourseDetailsClient courseId={courseId} />
     </main>
   );
 }
