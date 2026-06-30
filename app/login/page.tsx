@@ -19,7 +19,7 @@ export default function LoginPage() {
     >
       <div className="hero-text">
         <p className="eyebrow accent" style={{ marginBottom: 18 }}>
-          MICROCOURSE — WELCOME BACK
+          LEXIMIND ACADEMY — WELCOME BACK
         </p>
 
         <h1 id="login-heading" className="h1">

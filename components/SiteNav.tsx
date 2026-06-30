@@ -37,7 +37,7 @@ export default function SiteNav() {
     <header className="nav" role="banner">
       <nav aria-label="Main navigation">
         <div className="row">
-          <Link href="/" className="brand" aria-label="MicroCourse home">
+          <Link href="/" className="brand" aria-label="LexiMind Academy home">
             {/* SVG icon — no emoji per skill rule no-emoji-icons */}
             <span className="brand-icon" aria-hidden="true">
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -47,7 +47,15 @@ export default function SiteNav() {
                 <rect x="7.5" y="7.5" width="5.5" height="5.5" rx="1" fill="white" fillOpacity="0.35"/>
               </svg>
             </span>
-            MicroCourse
+            LexiMind Academy
+          </Link>
+
+          <Link
+            className={`badge${pathname === "/academy" ? " active" : ""}`}
+            href="/academy"
+            aria-current={pathname === "/academy" ? "page" : undefined}
+          >
+            Academy
           </Link>
 
           <Link

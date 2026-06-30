@@ -62,7 +62,7 @@ export default function RegisterPage() {
     >
       {/* Eyebrow */}
       <p className="eyebrow accent" style={{ marginBottom: 20 }}>
-        MICROCOURSE — NEW ACCOUNT
+        LEXIMIND ACADEMY — NEW ACCOUNT
       </p>
 
       {/* Display headline */}

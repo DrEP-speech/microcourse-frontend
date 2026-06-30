@@ -4,8 +4,8 @@ import Providers from "./providers";
 import SiteNav from "@/components/SiteNav";
 
 export const metadata: Metadata = {
-  title: "MicroCourse",
-  description: "Bite-sized courses, real quizzes, real progress.",
+  title: "LexiMind Academy",
+  description: "Professional learning, CEU-ready education, certification pathways, and clinical growth tools for therapy providers.",
   icons: {
     icon: "/icon.svg",
   },

@@ -40,7 +40,7 @@ export default function HomePage() {
       >
         <div className="hero-text">
           <p className="eyebrow accent" style={{ marginBottom: 18 }}>
-            MICROCOURSE — LEARN IN BURSTS
+            LEXIMIND ACADEMY — LEARN IN BURSTS
           </p>
 
           <h1 id="hero-heading" className="h1">
@@ -52,7 +52,7 @@ export default function HomePage() {
           </h1>
 
           <p className="hero-sub">
-            MicroCourse breaks any subject into bite-sized lessons and
+            LexiMind Academy breaks any subject into focused microcourses and
             instant quizzes so you make real progress without blocking
             out hours you don&apos;t have.
           </p>
@@ -61,8 +61,8 @@ export default function HomePage() {
             <Link className="btn primary" href="/register" style={{ minWidth: 160 }}>
               Get started free
             </Link>
-            <Link className="btn secondary" href="/courses">
-              Browse catalog
+            <Link className="btn secondary" href="/academy">
+              Explore Academy
             </Link>
           </div>
         </div>
