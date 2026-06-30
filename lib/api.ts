@@ -108,4 +108,5 @@ export const api = {
   fetch: apiFetch,
 };
 
-export default { apiFetch, apiGet, apiPost, apiPut, apiDel, getApiBase, getStoredToken, setStoredToken, setClientToken, clearStoredToken, api };
+const apiModule = { apiFetch, apiGet, apiPost, apiPut, apiDel, getApiBase, getStoredToken, setStoredToken, setClientToken, clearStoredToken, api };
+export default apiModule;

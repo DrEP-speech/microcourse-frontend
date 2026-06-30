@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { apiGet, apiPost, ApiError } from "@/lib/api";
@@ -23,7 +23,7 @@ export default function CEUCoursePlayerPage() {
   const [error, setError] = useState<string | null>(null);
   const [finishMsg, setFinishMsg] = useState<string | null>(null);
 
-  async function loadProgress() {
+  const loadProgress = useCallback(async () => {
     try {
       const res = await apiGet<{
         ok: boolean;
@@ -43,11 +43,11 @@ export default function CEUCoursePlayerPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [courseId]);
 
   useEffect(() => {
     if (courseId) loadProgress();
-  }, [courseId]);
+  }, [courseId, loadProgress]);
 
   async function toggleLesson(lessonId: string, alreadyDone: boolean) {
     if (alreadyDone) return;

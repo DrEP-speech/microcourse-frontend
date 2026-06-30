@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { apiGet, apiPost, apiDel, ApiError } from "@/lib/api";
@@ -51,7 +51,7 @@ export default function ClientBoardsPage() {
   const [saving, setSaving] = useState(false);
   const [formMsg, setFormMsg] = useState<string | null>(null);
 
-  async function loadAll() {
+  const loadAll = useCallback(async () => {
     setLoading(true);
     try {
       const [clientRes, boardsRes, selectionsRes] = await Promise.all([
@@ -67,11 +67,11 @@ export default function ClientBoardsPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [clientId]);
 
   useEffect(() => {
     if (clientId) loadAll();
-  }, [clientId]);
+  }, [clientId, loadAll]);
 
   function updateItem(idx: number, field: "label" | "icon", value: string) {
     setItems((prev) => prev.map((it, i) => (i === idx ? { ...it, [field]: value } : it)));

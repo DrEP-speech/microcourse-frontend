@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { apiGet, apiPost, apiDel, ApiError } from "@/lib/api";
@@ -30,7 +30,7 @@ export default function ClientLessonsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  async function loadAll() {
+  const loadAll = useCallback(async () => {
     setLoading(true);
     try {
       const [clientRes, libraryRes, assignedRes, completionsRes] = await Promise.all([
@@ -48,11 +48,11 @@ export default function ClientLessonsPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [clientId]);
 
   useEffect(() => {
     if (clientId) loadAll();
-  }, [clientId]);
+  }, [clientId, loadAll]);
 
   const assignedIds = new Set(assignments.map((a) => a.lesson._id));
 
