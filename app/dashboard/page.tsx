@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { apiFetch } from "@/lib/http";
 import { clearToken, getToken } from "@/lib/auth";
 
@@ -64,47 +65,47 @@ export default function DashboardPage() {
           <div className="card glow" style={{ marginTop: 16 }}>
             <h2 className="h2 glow-text" style={{ marginBottom: 8 }}>Mood &amp; regulation check-in</h2>
             <p className="muted" style={{ marginBottom: 12 }}>Check in on how your child is feeling right now.</p>
-            <a className="btn primary" href="/caregiver">Go to check-in</a>
+            <Link className="btn primary" href="/caregiver">Go to check-in</Link>
           </div>
         )}
         {role === "caregiver" && (
           <div className="card glow-amber" style={{ marginTop: 16 }}>
             <h2 className="h2 glow-text" style={{ marginBottom: 8 }}>Choice boards</h2>
             <p className="muted" style={{ marginBottom: 12 }}>Tap through visual choice boards assigned by your provider.</p>
-            <a className="btn primary" href="/caregiver/boards">Go to choice boards</a>
+            <Link className="btn primary" href="/caregiver/boards">Go to choice boards</Link>
           </div>
         )}
         {role === "caregiver" && (
           <div className="card glow" style={{ marginTop: 16 }}>
             <h2 className="h2 glow-text" style={{ marginBottom: 8 }}>Movement breaks</h2>
             <p className="muted" style={{ marginBottom: 12 }}>Follow a guided movement or sensory break assigned by your provider.</p>
-            <a className="btn primary" href="/caregiver/breaks">Go to movement breaks</a>
+            <Link className="btn primary" href="/caregiver/breaks">Go to movement breaks</Link>
           </div>
         )}
         {role === "caregiver" && (
           <div className="card glow-amber" style={{ marginTop: 16 }}>
             <h2 className="h2 glow-text" style={{ marginBottom: 8 }}>Microlearning</h2>
             <p className="muted" style={{ marginBottom: 12 }}>Swipe through short lessons assigned by your provider.</p>
-            <a className="btn primary" href="/caregiver/lessons">Go to microlearning</a>
+            <Link className="btn primary" href="/caregiver/lessons">Go to microlearning</Link>
           </div>
         )}
         {role === "professional" && (
           <div className="card glow-amber" style={{ marginTop: 16 }}>
             <h2 className="h2 glow-text" style={{ marginBottom: 8 }}>Your client roster</h2>
             <p className="muted" style={{ marginBottom: 12 }}>Manage clients and review regulation check-in history.</p>
-            <a className="btn primary" href="/professional">Go to clients</a>
+            <Link className="btn primary" href="/professional">Go to clients</Link>
           </div>
         )}
         {role === "professional" && (
           <div className="card glow-amber" style={{ marginTop: 16 }}>
             <h2 className="h2 glow-text" style={{ marginBottom: 8 }}>CEU courses</h2>
             <p className="muted" style={{ marginBottom: 12 }}>Earn continuing education credits with micro-courses matched to your discipline.</p>
-            <a className="btn primary" href="/professional/ceu">Go to CEU courses</a>
+            <Link className="btn primary" href="/professional/ceu">Go to CEU courses</Link>
           </div>
         )}
 
         <div className="row" style={{ marginTop: 8 }}>
-          <a className="btn primary" href="/courses">Browse courses</a>
+          <Link className="btn primary" href="/courses">Browse courses</Link>
         </div>
 
         <hr className="hr" />

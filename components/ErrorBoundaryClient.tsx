@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
+import { Component, type ReactNode } from "react";
 
 type Props = {
-  children: React.ReactNode;
+  children: ReactNode;
   fallbackTitle?: string;
 };
 
@@ -12,7 +12,7 @@ type State = {
   errorMessage?: string;
 };
 
-export class ErrorBoundaryClient extends React.Component<Props, State> {
+export class ErrorBoundaryClient extends Component<Props, State> {
   state: State = { hasError: false };
 
   static getDerivedStateFromError(err: unknown): State {
