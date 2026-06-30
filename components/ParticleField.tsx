@@ -29,8 +29,8 @@ export const LOBE_INFO = [
   { id: "parietal",   name: "Parietal Lobe",   color: "#8052ff", blurb: "Sensory processing and spatial awareness." },
   { id: "temporal",   name: "Temporal Lobe",   color: "#15846e", blurb: "Hearing, memory, and language." },
   { id: "occipital",  name: "Occipital Lobe",  color: "#5b8def", blurb: "Visual processing." },
-  { id: "cerebellum", name: "Cerebellum",      color: "#ffffff", blurb: "Balance, coordination, and fine motor control." },
-  { id: "brainstem",  name: "Brainstem",       color: "#ffffff", blurb: "Breathing, heart rate, and other survival functions." },
+  { id: "cerebellum", name: "Cerebellum",      color: "#e8c690", blurb: "Balance, coordination, and fine motor control." },
+  { id: "brainstem",  name: "Brainstem",       color: "#e8c690", blurb: "Breathing, heart rate, and other survival functions." },
 ] as const;
 
 const LOBE_MAP: Record<string, (typeof LOBE_INFO)[number]> = Object.fromEntries(
@@ -43,6 +43,25 @@ function pickColor(lobeId: string) {
   /* Mostly the lobe's own color, with an occasional bone-white sparkle
      to keep some depth/shimmer in the field. */
   return Math.random() < 0.78 ? info.color : "rgba(255,255,255,0.6)";
+}
+
+/* Bead-sculpture reference reads as one continuous, densely packed mass
+   of small spheres — almost no triangles/diamonds visible. For the brain
+   cluster specifically we go circle-dominant (true "bead" look); the
+   sphere/legacy cluster keeps the original triangle-dominant mix. */
+function pickBrainColor(lobeId: string) {
+  const info = LOBE_MAP[lobeId];
+  if (!info) return "rgba(255,255,255,0.6)";
+  /* Solid, almost-no-sparkle fill — the reference's lobes are flat,
+     saturated color blocks, not a shimmering field. */
+  return Math.random() < 0.94 ? info.color : "rgba(255,255,255,0.5)";
+}
+
+function pickBrainShape(): Shape {
+  const r = Math.random();
+  if (r < 0.86) return "circle";
+  if (r < 0.95) return "triangle";
+  return "diamond";
 }
 
 /* Reference constellation is triangle-dominant with circles/diamonds as
@@ -335,15 +354,23 @@ export default function ParticleField({
         const c = toCanvas(px, py);
         const baseDX = c.x - W() / 2;
         const baseDY = c.y - H() / 2;
+        /* Bead-sculpture reference: small, tightly packed, near-opaque
+           spheres with very little size variance — not the sparse,
+           large, semi-transparent twinkle of a starfield. Ridge banding
+           on the cerebellum/brainstem (alternating brighter/dimmer rows)
+           hints at the striated texture in the reference without
+           drawing actual stroke lines. */
+        const isRidged = lobeId === "cerebellum" || lobeId === "brainstem";
+        const ridgeBand = isRidged ? (Math.sin(py * 0.55) > 0 ? 1 : 0.72) : 1;
         particles.push({
           x: Math.random() * W(),
           y: Math.random() * H(),
           vx: (Math.random() - 0.5) * 0.3,
           vy: (Math.random() - 0.5) * 0.3,
-          size: Math.random() * 2.6 + 1.5,
-          color: pickColor(lobeId),
-          shape: pickShape(),
-          alpha: Math.random() * 0.4 + 0.5,
+          size: Math.random() * 1.5 + 1.3,
+          color: pickBrainColor(lobeId),
+          shape: pickBrainShape(),
+          alpha: (Math.random() * 0.15 + 0.8) * ridgeBand,
           lobeId,
           baseDX,
           baseDY,
@@ -398,12 +425,10 @@ export default function ParticleField({
         const pt = sampleInPolygon(outlinePoly, outlineBBox, outlineFallback);
         pushParticle(pt.x, pt.y, nearestAnchorId(pt.x, pt.y));
       }
-      /* Sparse ambient drift outside the silhouette — small, dim,
-         scattered across the full canvas — so density "varies, thick in
-         the center, sparse at the edges" instead of stopping hard at the
-         brain's contour. Not part of any lobe; never brightens on
-         hover. */
-      const ambientCount = Math.round(total * 0.16);
+      /* Bead-sculpture reference is a solid mass on flat black — no
+         scattered dust outside the silhouette — so this is now just a
+         faint hint of depth rather than a visible drift layer. */
+      const ambientCount = Math.round(total * 0.03);
       for (let i = 0; i < ambientCount; i++) {
         const ax = Math.random() * W();
         const ay = Math.random() * H();
@@ -517,8 +542,14 @@ export default function ParticleField({
       /* Slow overall "breathing" pulse on top of per-particle drift, so
          the whole constellation visibly swells/contracts rather than
          relying on individual jitter alone — the previous 2-3px sway was
-         too subtle to register as "movement" at a glance. */
-      const breathe = 1 + Math.sin(t * 0.5) * 0.025;
+         too subtle to register as "movement" at a glance. Brain mode
+         packs particles tightly (bead-sculpture look), so its per-
+         particle jitter is kept small — a big per-particle swing would
+         tear visible holes in an otherwise solid mass — while the
+         breathing pulse itself still reads clearly as motion. */
+      const breathe = 1 + Math.sin(t * 0.5) * (isBrain ? 0.018 : 0.025);
+      const jitterAmpX = isBrain ? 2.5 : 8;
+      const jitterAmpY = isBrain ? 2 : 6;
 
       particles.forEach((p, i) => {
         p.targetX = cx + p.baseDX * breathe;
@@ -526,9 +557,9 @@ export default function ParticleField({
 
         /* ambient drift — bigger amplitude + faster cycle so it's
            clearly alive, not just a subtle shimmer */
-        const drift = Math.sin(t + i * 0.1) * 8;
+        const drift = Math.sin(t + i * 0.1) * jitterAmpX;
         const dx = (p.targetX + drift) - p.x;
-        const dy = (p.targetY + Math.cos(t * 0.7 + i * 0.07) * 6) - p.y;
+        const dy = (p.targetY + Math.cos(t * 0.7 + i * 0.07) * jitterAmpY) - p.y;
         p.vx += dx * 0.02;
         p.vy += dy * 0.02;
         p.vx *= 0.9;
