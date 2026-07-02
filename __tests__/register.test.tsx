@@ -27,7 +27,7 @@ jest.mock("@/lib/api", () => ({
 }));
 
 // Import named exports — no module isolation needed
-import { RegisterForm, isBetaAccessRequired } from "@/app/register/page";
+import { RegisterForm, isBetaAccessRequired } from "../components/RegisterForm";
 
 // ---------------------------------------------------------------------------
 // isBetaAccessRequired helper
