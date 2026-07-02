@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
 import { apiFetch, ApiError, getApiBase, setClientToken } from "@/lib/api";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 type LoginResponse = {
   ok?: boolean;
@@ -16,12 +17,20 @@ type LoginResponse = {
 
 export default function LoginClient() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const apiBase = getApiBase();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [sessionExpired, setSessionExpired] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get("reason") === "session_expired") {
+      setSessionExpired(true);
+    }
+  }, [searchParams]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -60,6 +69,11 @@ export default function LoginClient() {
 
   return (
     <section className="card" style={{ maxWidth: 420 }}>
+      {sessionExpired && (
+        <div className="alert" role="alert" style={{ marginBottom: 12 }}>
+          Your session expired. Please sign in again.
+        </div>
+      )}
       <form onSubmit={onSubmit} className="formRow">
         <label className="stack">
           <span className="muted">Email</span>
@@ -91,6 +105,15 @@ export default function LoginClient() {
             {msg}
           </div>
         )}
+
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 13 }}>
+          <Link href="/forgot-password" className="muted" style={{ textDecoration: "underline" }}>
+            Forgot password?
+          </Link>
+          <Link href="/register" className="muted" style={{ textDecoration: "underline" }}>
+            Create account
+          </Link>
+        </div>
 
         <div className="muted" style={{ fontSize: 12 }}>
           Backend: <span style={{ fontFamily: "monospace" }}>{apiBase}</span>

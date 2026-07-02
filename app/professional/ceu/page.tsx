@@ -35,6 +35,13 @@ export default function CEUCataloguePage() {
 
   return (
     <main className="page container">
+      <div
+        role="note"
+        style={{ fontSize: 12, padding: "8px 12px", marginBottom: 12, borderRadius: 8, background: "rgba(255,200,0,0.07)", border: "1px solid rgba(255,200,0,0.2)", color: "var(--muted)" }}
+      >
+        <strong>Beta notice:</strong> CEU certificates issued here are platform completion records only.
+        They are not accredited and do not satisfy licensure renewal requirements unless accreditation approval has been confirmed.
+      </div>
       <section className="hero" style={{ paddingTop: "var(--space-8)", paddingBottom: "var(--space-6)" }}>
         <h1 className="h1 glow-text">CEU courses</h1>
         <p className="hero-sub">Continuing education micro-courses matched to your discipline.</p>

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import Providers from "./providers";
 import SiteNav from "@/components/SiteNav";
+import { ErrorBoundaryClient } from "@/components/ErrorBoundaryClient";
 
 export const metadata: Metadata = {
   title: "LexiMind Academy",
@@ -25,7 +26,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Providers>
           <SiteNav />
           <main id="main-content" className="container page">
-            {children}
+            <ErrorBoundaryClient>
+              {children}
+            </ErrorBoundaryClient>
           </main>
         </Providers>
       </body>

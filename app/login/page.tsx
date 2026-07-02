@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import NextDynamic from "next/dynamic";
 import LoginClient from "@/components/LoginClient";
 
@@ -36,7 +37,9 @@ export default function LoginPage() {
         </p>
 
         <div style={{ marginTop: "var(--space-5)" }}>
-          <LoginClient />
+          <Suspense fallback={null}>
+            <LoginClient />
+          </Suspense>
         </div>
       </div>
 

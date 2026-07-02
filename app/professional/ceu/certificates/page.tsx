@@ -39,6 +39,16 @@ export default function MyCertificatesPage() {
     <main className="page container">
       <Link href="/professional/ceu" className="badge" style={{ marginBottom: "var(--space-4)", display: "inline-block" }}>← Back to CEU courses</Link>
 
+      <div
+        role="note"
+        style={{ fontSize: 12, padding: "8px 12px", marginBottom: 12, borderRadius: 8, background: "rgba(255,200,0,0.07)", border: "1px solid rgba(255,200,0,0.2)", color: "var(--muted)" }}
+      >
+        <strong>Platform beta certificates:</strong> These certificates are platform completion records only.
+        They are not accredited CEU certificates and do not satisfy licensure renewal requirements
+        unless accreditation approval has been completed and confirmed. Check with your licensing board
+        before submitting any certificate for CEU credit.
+      </div>
+
       <section className="hero" style={{ paddingTop: "var(--space-6)", paddingBottom: "var(--space-6)" }}>
         <h1 className="h1 glow-text">My CEU certificates</h1>
         <p className="hero-sub">{completions.length} certificate{completions.length === 1 ? "" : "s"} earned · {totalCredits} total CE credit{totalCredits === 1 ? "" : "s"}</p>

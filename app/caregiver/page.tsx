@@ -112,6 +112,13 @@ export default function CaregiverPortal() {
 
   return (
     <main className="page container">
+      <div
+        role="note"
+        style={{ fontSize: 12, padding: "8px 12px", marginBottom: 12, borderRadius: 8, background: "rgba(255,200,0,0.07)", border: "1px solid rgba(255,200,0,0.2)", color: "var(--muted)" }}
+      >
+        <strong>Beta notice:</strong> This is a beta version. Not for emergency use or clinical decision-making.
+        Do not enter real patient or PHI data — use demo data only.
+      </div>
       <section className="hero" style={{ paddingTop: "var(--space-8)", paddingBottom: "var(--space-6)" }}>
         <h1 className="h1 glow-text">How are they feeling right now?</h1>
         <p className="hero-sub">

@@ -1,5 +1,7 @@
 "use client";
 
+import { redirectToSessionExpiredLogin } from "./sessionRedirect";
+
 export const API_MODULE_SIGNATURE = "lib/api@v1";
 
 const TOKEN_KEY = "mc_token";
@@ -72,6 +74,17 @@ export async function apiFetch<T = any>(path: string, opts: ApiFetchOpts = {}): 
   const body = contentType.includes("application/json")
     ? await res.json().catch(() => null)
     : await res.text().catch(() => null);
+
+  // Stale-token interceptor: authenticated calls that receive a 401 mean the
+  // JWT has expired or been invalidated. Clear the stored token and redirect
+  // to the login page with a reason parameter so the UI can show a message.
+  // Unauthenticated calls (noAuth: true, e.g. login, forgot-password) are
+  // excluded — a 401 there means wrong credentials, not an expired session.
+  if (res.status === 401 && !opts.noAuth && opts.auth !== false) {
+    clearStoredToken();
+    redirectToSessionExpiredLogin();
+    throw new ApiError({ status: 401, message: "SESSION_EXPIRED", details: body });
+  }
 
   if (!res.ok) {
     const msg =
